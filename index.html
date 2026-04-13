@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seed2Scale: A Self-Evolving Data Engine for Embodied AI</title>
+  <meta name="description" content="Seed2Scale is a self-evolving data engine that overcomes the data bottleneck in Embodied AI through heterogeneous synergy of small-model collection, large-model evaluation, and target-model learning.">
+  <meta name="keywords" content="Embodied AI, VLA, Vision-Language-Action, Self-Evolving, Data Engine, SuperTiny, SmolVLA, Robot Learning, IROS 2026">
+  <meta name="author" content="Seed2Scale Research Team">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+  <style>
+    :root {
+      --bg:          #f7f9fc;
+      --bg-card:     #ffffff;
+      --bg-section:  #f0f4f8;
+      --border:      rgba(0,0,0,0.08);
+      --border-md:   rgba(0,0,0,0.13);
+      --primary:     #2563eb;
+      --primary-lt:  #dbeafe;
+      --primary-glow:rgba(37,99,235,0.10);
+      --accent:      #7c3aed;
+      --accent-lt:   #ede9fe;
+      --accent2:     #059669;
+      --accent2-lt:  #d1fae5;
+      --red:         #dc2626;
+      --red-lt:      #fee2e2;
+      --text:        #111827;
+      --text-md:     #374151;
+      --text-muted:  #6b7280;
+      --text-dim:    #9ca3af;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md:   0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+      --shadow-lg:   0 12px 32px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
+      --font-mono:   'JetBrains Mono', monospace;
+      --ease:        cubic-bezier(0.4, 0, 0.2, 1);
+      --trans:       0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    a { color: var(--primary); text-decoration: none; transition: var(--trans); }
+    a:hover { opacity: 0.82; }
+    img { max-width: 100%; height: auto; display: block; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #c7d2e0; border-radius: 3px; }
+
+    #tree-canvas {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0; z-index: 1000;
+      height: 58px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(247,249,252,0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      transition: var(--trans);
+    }
+    .navbar.scrolled {
+      background: rgba(247,249,252,0.97);
+      box-shadow: var(--shadow-sm);
+    }
+    .navbar-logo-wrap { display: flex; align-items: center; gap: 0.75rem; }
+    .navbar-logo-wrap img { height: 56px; width: auto; }
+    .navbar-brand {
+      font-family: var(--font-mono);
+      font-size: 0.83rem; font-weight: 600;
+      color: var(--primary); letter-spacing: 0.07em;
+    }
+    .navbar-links { display: flex; gap: 1.6rem; list-style: none; }
+    .navbar-links a {
+      font-size: 0.81rem; font-weight: 500;
+      color: var(--text-muted); letter-spacing: 0.03em;
+    }
+    .navbar-links a:hover { color: var(--primary); opacity: 1; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 100px 2rem 80px;
+      overflow: hidden;
+    }
+    .hero-bg-grad {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 0%, rgba(37,99,235,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 85% 70%, rgba(124,58,237,0.05) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 10% 80%, rgba(5,150,105,0.04) 0%, transparent 50%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(37,99,235,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,99,235,0.035) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    }
+
+    .conf-badge {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.32rem 0.9rem;
+      border: 1px solid rgba(37,99,235,0.3);
+      border-radius: 100px;
+      font-size: 0.76rem; font-weight: 600;
+      font-family: var(--font-mono);
+      color: var(--primary);
+      background: rgba(37,99,235,0.06);
+      letter-spacing: 0.06em;
+      margin-bottom: 1.8rem;
+      animation: fadeInDown 0.7s var(--ease) both;
+    }
+    .conf-badge .live-dot {
+      width: 6px; height: 6px;
+      background: var(--accent2); border-radius: 50%;
+      animation: pulseDot 2.2s ease infinite;
+    }
+
+    .hero-title {
+      font-size: clamp(2.8rem, 7.5vw, 6rem);
+      font-weight: 900; line-height: 1.0;
+      letter-spacing: -0.035em;
+      text-align: center;
+      margin-bottom: 0.6rem;
+      animation: fadeInUp 0.8s var(--ease) 0.1s both;
+    }
+    .hero-title .grad {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 60%, #0ea5e9 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(0.92rem, 2vw, 1.1rem);
+      font-weight: 400; color: var(--text-muted);
+      text-align: center; max-width: 680px;
+      line-height: 1.65; margin: 0 auto 1.6rem;
+      animation: fadeInUp 0.8s var(--ease) 0.18s both;
+    }
+
+    .hero-abstract {
+      max-width: 780px; margin: 0 auto 2rem;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(37,99,235,0.12);
+      border-radius: 14px;
+      padding: 1.4rem 1.8rem;
+      backdrop-filter: blur(10px);
+      font-size: 0.94rem; color: var(--text-md);
+      line-height: 1.8;
+      box-shadow: var(--shadow-sm);
+      animation: fadeInUp 0.8s var(--ease) 0.26s both;
+    }
+    .hero-abstract strong { color: var(--primary); font-weight: 700; }
+
+    .authors-block {
+      text-align: center; margin-bottom: 1.6rem;
+      animation: fadeInUp 0.8s var(--ease) 0.22s both;
+    }
+    .authors-block .author-names {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.02rem; color: var(--text-md); line-height: 2;
+      font-weight: 500; letter-spacing: 0.02em;
+    }
+    .authors-block .author-names .author-sep { color: var(--text-dim); margin: 0 0.15em; }
+    .authors-block p { font-size: 0.87rem; color: var(--text-muted); line-height: 1.9; }
+    .authors-block .affil { font-size: 0.76rem; color: var(--text-dim); margin-top: 0.25rem; font-style: italic; }
+
+    .btn-group {
+      display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 3.2rem;
+      animation: fadeInUp 0.8s var(--ease) 0.38s both;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.6rem 1.3rem; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      transition: var(--trans); border: 1px solid transparent;
+      letter-spacing: 0.02em;
+    }
+    .btn-primary {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+    }
+    .btn-primary:hover {
+      background: #1d4ed8; color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(37,99,235,0.35);
+    }
+    .btn-outline {
+      background: #fff; color: var(--text-md);
+      border-color: var(--border-md);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-outline:hover {
+      border-color: var(--primary); color: var(--primary);
+      transform: translateY(-2px); box-shadow: var(--shadow-md);
+    }
+    .btn-accent {
+      background: var(--accent-lt); color: var(--accent);
+      border-color: rgba(124,58,237,0.25);
+    }
+    .btn-accent:hover {
+      background: #ddd6fe; transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(124,58,237,0.18);
+    }
+
+    .hero-stats {
+      display: flex; gap: 2.5rem; justify-content: center; flex-wrap: wrap;
+      animation: fadeInUp 0.8s var(--ease) 0.44s both;
+    }
+    .stat-item { text-align: center; }
+    .stat-value {
+      font-size: 2rem; font-weight: 800; line-height: 1;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .stat-sep { width: 1px; height: 36px; background: var(--border); align-self: center; }
+
+    .scroll-hint {
+      position: absolute; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+      color: var(--text-dim); font-size: 0.68rem; letter-spacing: 0.08em;
+      animation: fadeIn 1s ease 1.3s both;
+    }
+    .scroll-mouse {
+      width: 20px; height: 32px; border-radius: 10px;
+      border: 1.5px solid #c7d2e0;
+      position: relative;
+    }
+    .scroll-mouse::before {
+      content: ''; position: absolute;
+      top: 5px; left: 50%; transform: translateX(-50%);
+      width: 3px; height: 5px;
+      background: var(--primary); border-radius: 2px;
+      animation: scrollWheel 2s ease infinite;
+    }
+
+    /* ── SECTION BASE ── */
+    section { position: relative; z-index: 1; padding: 80px 2rem; }
+    .s-white { background: var(--bg-card); }
+    .s-gray  { background: var(--bg-section); }
+    .container    { max-width: 1060px; margin: 0 auto; }
+    .container-lg { max-width: 1260px; margin: 0 auto; }
+
+    .sec-label {
+      display: flex; align-items: center; gap: 0.55rem;
+      font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+      color: var(--primary); letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 0.65rem;
+    }
+    .sec-label::before { content: ''; display: block; width: 20px; height: 1.5px; background: var(--primary); }
+    .sec-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 800; line-height: 1.18;
+      letter-spacing: -0.02em; margin-bottom: 1rem;
+      color: var(--text);
+    }
+    .sec-desc { font-size: 0.98rem; color: var(--text-muted); max-width: 680px; line-height: 1.75; }
+
+    .divider {
+      height: 1px; margin: 0;
+      background: linear-gradient(90deg, transparent, rgba(37,99,235,0.2), rgba(124,58,237,0.2), transparent);
+    }
+
+    /* ── ABSTRACT ── */
+    .abstract-grid {
+      display: grid; grid-template-columns: 1fr 1.5fr; gap: 4rem; align-items: start;
+    }
+    .abstract-text { font-size: 1rem; color: var(--text-md); line-height: 1.88; }
+    .abstract-text p + p { margin-top: 1rem; }
+    .hl { color: var(--primary); font-weight: 700; }
+
+    .abstract-viz {
+      margin-top: 2rem;
+      padding: 1rem 0;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+    }
+    .abstract-viz.vis {
+      opacity: 1;
+      transform: none;
+    }
+    .abstract-svg {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    /* ── VIDEO ── */
+    .video-wrap {
+      border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border-md);
+      box-shadow: var(--shadow-lg);
+      background: #000;
+    }
+    .video-wrap video { width: 100%; display: block; }
+
+    /* ── PIPELINE IMAGE ── */
+    .fig-wrap {
+      border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      background: #fff;
+      margin-top: 2.8rem;
+    }
+    .fig-wrap img { width: 100%; display: block; }
+    .fig-caption {
+      padding: 0.85rem 1.3rem;
+      font-size: 0.79rem; color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono); line-height: 1.6;
+    }
+
+    /* ── METHOD CARDS ── */
+    .method-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; margin-top: 2.8rem; }
+    .method-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.75rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--trans); position: relative; overflow: hidden;
+    }
+    .method-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      border-radius: 12px 12px 0 0; opacity: 0; transition: var(--trans);
+    }
+    .mc-blue::before  { background: linear-gradient(90deg, var(--primary), #0ea5e9); }
+    .mc-purple::before{ background: linear-gradient(90deg, var(--accent), #a855f7); }
+    .mc-green::before { background: linear-gradient(90deg, var(--accent2), #10b981); }
+    .method-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+    .method-card:hover::before { opacity: 1; }
+    .mc-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; margin-bottom: 1rem;
+    }
+    .ic-blue   { background: var(--primary-lt); color: var(--primary); }
+    .ic-purple { background: var(--accent-lt);  color: var(--accent); }
+    .ic-green  { background: var(--accent2-lt); color: var(--accent2); }
+    .method-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .method-card p  { font-size: 0.86rem; color: var(--text-muted); line-height: 1.7; }
+    .mc-tag {
+      display: inline-block; margin-top: 0.9rem;
+      padding: 0.22rem 0.6rem; border-radius: 6px;
+      font-size: 0.7rem; font-family: var(--font-mono); font-weight: 600;
+    }
+    .tag-blue   { background: var(--primary-lt); color: var(--primary); }
+    .tag-purple { background: var(--accent-lt);  color: var(--accent); }
+    .tag-green  { background: var(--accent2-lt); color: var(--accent2); }
+
+    /* Pipeline flow */
+    .flow-wrap {
+      margin-top: 2.8rem;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; padding: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .flow-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.4rem; }
+    .flow-row { display: flex; align-items: center; gap: 0; overflow-x: auto; padding-bottom: 0.5rem; }
+    .flow-step { flex: 1; min-width: 110px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .flow-node {
+      width: 52px; height: 52px; border-radius: 12px;
+      border: 1.5px solid; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; margin-bottom: 0.65rem;
+    }
+    .fn-blue   { border-color: var(--primary); background: var(--primary-lt); color: var(--primary); }
+    .fn-purple { border-color: var(--accent);  background: var(--accent-lt);  color: var(--accent); }
+    .fn-green  { border-color: var(--accent2); background: var(--accent2-lt); color: var(--accent2); }
+    .flow-step h4 { font-size: 0.77rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .flow-step p  { font-size: 0.69rem; color: var(--text-muted); line-height: 1.45; }
+    .flow-arrow { flex: 0 0 32px; display: flex; align-items: center; justify-content: center; color: var(--text-dim); padding-bottom: 1.6rem; }
+    .flow-loop  { flex: 0 0 32px; display: flex; align-items: center; justify-content: center; color: var(--accent2); padding-bottom: 1.6rem; font-size: 0.95rem; }
+
+    /* ── DEMO GIF ── */
+    .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.5rem; }
+    .demo-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: var(--shadow-sm); transition: var(--trans);
+    }
+    .demo-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .demo-card-head {
+      padding: 0.8rem 1.1rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(248,250,252,0.9);
+    }
+    .demo-task-name { font-size: 0.82rem; font-weight: 600; flex: 1; }
+    .badge {
+      padding: 0.18rem 0.55rem; border-radius: 6px;
+      font-size: 0.69rem; font-weight: 700; font-family: var(--font-mono);
+    }
+    .badge-fail { background: var(--red-lt); color: var(--red); }
+    .badge-pass { background: var(--accent2-lt); color: var(--accent2); }
+    .gif-row { display: grid; grid-template-columns: 1fr 1px 1fr; }
+    .gif-col { position: relative; overflow: hidden; display: flex; flex-direction: column; }
+    .gif-col img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+    .gif-sep { background: var(--border); }
+    .gif-lbl {
+      padding: 0.38rem 0.55rem;
+      font-size: 0.68rem; font-weight: 600; font-family: var(--font-mono);
+      background: rgba(248,250,252,0.95);
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .lbl-bad  { color: var(--red); }
+    .lbl-good { color: var(--accent2); }
+
+    /* Compare grid */
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 2rem; }
+    .cmp-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: var(--shadow-sm); transition: var(--trans);
+    }
+    .cmp-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .cmp-head {
+      padding: 0.7rem 1.1rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.8rem; font-weight: 600; background: #f8fafc;
+    }
+    .cmp-card img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+    .cmp-foot {
+      padding: 0.5rem 1.1rem; border-top: 1px solid var(--border);
+      font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);
+    }
+
+    /* ── METRICS ── */
+    .metric-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.2rem; margin-top: 2.8rem; }
+    .metric-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.4rem;
+      box-shadow: var(--shadow-sm); text-align: center; transition: var(--trans);
+    }
+    .metric-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .metric-num {
+      font-size: 1.9rem; font-weight: 800; line-height: 1; margin-bottom: 0.35rem;
+    }
+    .mn-blue   { color: var(--primary); }
+    .mn-green  { color: var(--accent2); }
+    .mn-purple { color: var(--accent); }
+    .mn-amber  { color: #d97706; }
+    .metric-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+    .metric-sub  { font-size: 0.68rem; color: var(--text-dim); margin-top: 0.25rem; font-family: var(--font-mono); }
+
+    /* Tables */
+    .tbl-wrap { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-top: 2rem; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: #f1f5f9; border-bottom: 1px solid var(--border-md); }
+    th { padding: 0.8rem 1.1rem; text-align: left; font-size: 0.73rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); font-family: var(--font-mono); white-space: nowrap; }
+    td { padding: 0.75rem 1.1rem; font-size: 0.86rem; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(37,99,235,0.03); }
+    .td-name  { font-weight: 600; color: var(--text); }
+    .td-good  { color: var(--primary); font-weight: 700; }
+    .td-great { color: var(--accent2); font-weight: 700; }
+    .td-bad   { color: var(--red); }
+    .td-avg td { background: #f8fafc; font-weight: 600; }
+
+    /* SVG chart */
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.8rem; }
+    .chart-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-sm);
+    }
+    .chart-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .chart-sub   { font-size: 0.73rem; color: var(--text-dim); margin-bottom: 1.2rem; }
+    .chart-svg   { width: 100%; overflow: visible; }
+
+    /* Bar progress */
+    .bar-list { margin-top: 0.5rem; }
+    .bar-item { margin-bottom: 1.1rem; }
+    .bar-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem; }
+    .bar-lbl { font-weight: 500; color: var(--text-md); }
+    .bar-track { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width 1.4s var(--ease); width: 0; }
+    .bf-seed { background: #fca5a5; }
+    .bf-s2s  { background: linear-gradient(90deg, var(--primary), #0ea5e9); }
+
+    /* ── MODEL SPECS ── */
+    .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.8rem; }
+    .spec-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: var(--shadow-sm); transition: var(--trans);
+    }
+    .spec-card:hover { box-shadow: var(--shadow-md); }
+    .spec-head {
+      padding: 1rem 1.4rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.7rem; background: #f8fafc;
+    }
+    .spec-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+    .spec-head h3 { font-size: 0.95rem; font-weight: 700; flex: 1; }
+    .spec-badge { font-size: 0.68rem; font-family: var(--font-mono); padding: 0.2rem 0.5rem; border-radius: 5px; font-weight: 600; }
+    .spec-rows { list-style: none; padding: 0; }
+    .spec-rows li {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.55rem 1.4rem; font-size: 0.83rem;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .spec-rows li:last-child { border-bottom: none; }
+    .sk { color: var(--text-muted); }
+    .sv { font-weight: 600; color: var(--text); font-family: var(--font-mono); font-size: 0.8rem; }
+    .sv-hl { color: var(--primary); }
+
+    /* ── MULTI-TASK DEMO ── */
+   .four-gif-wrap { display: flex; justify-content: center; margin-top: 2.5rem; }
+   .four-gif { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-lg); max-width: 50%; }
+   .four-gif img { width: 100%; display: block; }
+
+   /* ── Extra image figures ─────────────────────────────── */
+   .fig-block {
+     margin-top: 2.5rem;
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: 16px;
+     overflow: hidden;
+     box-shadow: var(--shadow-md);
+   }
+   .fig-block img {
+     width: 100%; display: block;
+     border-bottom: 1px solid var(--border);
+   }
+   .fig-caption {
+     padding: 0.9rem 1.4rem;
+     font-size: 0.80rem;
+     color: var(--text-muted);
+     line-height: 1.6;
+   }
+   .fig-caption strong { color: var(--text-main); }
+
+   /* side-by-side layout for motor curve + table */
+   .fig-pair {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 1.5rem;
+     margin-top: 2.5rem;
+     align-items: start;
+   }
+   @media (max-width: 860px) { .fig-pair { grid-template-columns: 1fr; } }
+
+   /* full-width architecture figure */
+   .arch-fig {
+     margin-top: 2.5rem;
+     background: #fff;
+     border: 1px solid var(--border);
+     border-radius: 16px;
+     overflow: hidden;
+     box-shadow: var(--shadow-md);
+   }
+   .arch-fig img { width: 100%; display: block; border-bottom: 1px solid var(--border); }
+   .arch-fig .fig-caption { background: var(--surface); }
+
+    /* ── PAPER ── */
+    .pdf-wrap { margin-top: 2.5rem; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+    .pdf-wrap iframe { width: 100%; height: 600px; border: none; display: block; }
+
+    /* ── THANKS ── */
+    .thanks-wrap {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 14px; padding: 2rem 2.5rem;
+      box-shadow: var(--shadow-sm); margin-top: 2rem;
+    }
+    .thanks-banner {
+      width: 100%; border-radius: 10px; overflow: hidden;
+      margin-bottom: 1.8rem; border: 1px solid var(--border);
+    }
+    .thanks-banner img { width: 100%; display: block; height: auto; }
+    .thanks-text { text-align: center; }
+    .thanks-text h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .thanks-text p  { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; max-width: 720px; margin: 0 auto; }
+
+    /* ── BIBTEX ── */
+    .bib-wrap { margin-top: 2rem; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+    .bib-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.7rem 1.2rem; background: #f1f5f9; border-bottom: 1px solid var(--border);
+    }
+    .win-dots { display: flex; gap: 0.3rem; }
+    .wd { width: 10px; height: 10px; border-radius: 50%; }
+    .wd-r { background: #fca5a5; } .wd-y { background: #fde68a; } .wd-g { background: #6ee7b7; }
+    .bib-fname { font-size: 0.76rem; font-family: var(--font-mono); color: var(--text-muted); margin-left: 0.5rem; }
+    .copy-btn {
+      display: flex; align-items: center; gap: 0.35rem;
+      padding: 0.3rem 0.85rem; background: #fff;
+      border: 1px solid var(--border-md); border-radius: 7px;
+      color: var(--text-muted); font-size: 0.76rem; font-family: var(--font-mono);
+      cursor: pointer; transition: var(--trans);
+    }
+    .copy-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .copy-btn.copied { border-color: var(--accent2); color: var(--accent2); }
+    pre.bib-code {
+      padding: 1.4rem 1.5rem; font-family: var(--font-mono);
+      font-size: 0.81rem; color: var(--text-muted);
+      line-height: 1.85; overflow-x: auto; background: #fff;
+    }
+    .bk { color: var(--primary); } .bf { color: var(--accent); } .bv { color: var(--accent2); }
+
+    /* ── FOOTER ── */
+    footer { padding: 2.8rem 2rem; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+    .footer-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+    .footer-brand { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; color: var(--primary); letter-spacing: 0.06em; margin-bottom: 0.7rem; }
+    footer p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.85; }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--primary); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:none} }
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(22px)}  to{opacity:1;transform:none} }
+    @keyframes fadeIn     { from{opacity:0} to{opacity:1} }
+    @keyframes pulseDot   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.45;transform:scale(.65)} }
+    @keyframes scrollWheel{ 0%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:0;transform:translateX(-50%) translateY(9px)} 100%{opacity:0} }
+
+    .reveal { opacity:0; transform:translateY(26px); transition:opacity .65s var(--ease),transform .65s var(--ease); }
+    .reveal.vis { opacity:1; transform:none; }
+    .rv1 { transition-delay:.08s; } .rv2 { transition-delay:.16s; } .rv3 { transition-delay:.24s; }
+
+    @media(max-width:900px){
+      .abstract-grid { grid-template-columns:1fr; gap:2.2rem; }
+      .method-grid   { grid-template-columns:1fr; }
+      .metric-grid   { grid-template-columns:repeat(2,1fr); }
+      .demo-grid     { grid-template-columns:1fr; }
+      .compare-grid  { grid-template-columns:1fr; }
+      .spec-grid     { grid-template-columns:1fr; }
+      .chart-grid    { grid-template-columns:1fr; }
+      .hero-stats    { gap:1.4rem; }
+      .stat-sep      { display:none; }
+    }
+    @media(max-width:600px){
+      section { padding:56px 1.1rem; }
+      .metric-grid { grid-template-columns:1fr 1fr; }
+      .gif-row     { grid-template-columns:1fr; }
+      .navbar-links { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-logo-wrap">
+    <img src="assets/img/zte_logo.png" alt="ZTE / AGiBot Logo">
+  </div>
+  <ul class="navbar-links">
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#video">Video</a></li>
+    <li><a href="#method">Method</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#metrics">Metrics</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#paper">Paper</a></li>
+    <li><a href="#bibtex">Cite</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <canvas id="tree-canvas"></canvas>
+  <div class="hero-bg-grad"></div>
+  <div class="hero-grid"></div>
+
+  <div class="conf-badge">
+    <span class="live-dot"></span>
+    Model-base large scale parallel trajectory generation
+  </div>
+
+  <h1 class="hero-title">
+    <span class="grad">Seed2Scale</span>
+  </h1>
+
+  <p class="hero-sub">
+    A Self-Evolving Data Engine for Embodied AI via<br>
+    Small-to-Large Model Synergy and Multimodal Evaluation
+  </p>
+
+  <div class="authors-block">
+    <div class="author-names">
+      Cong Tai<sup>†</sup><span class="author-sep">·</span>Zhaoyu Zheng<sup>†</sup><span class="author-sep">·</span>Haixu Long<sup>†</sup><span class="author-sep">·</span>Hansheng Wu<span class="author-sep">·</span>Zhengbin Long<br>
+      Haodong Xiang<span class="author-sep">·</span>Rong Shi<span class="author-sep">·</span>Zhuo Cui<span class="author-sep">·</span>Shizhuang Zhang<span class="author-sep">·</span>Gang Qiu<br>
+      He Wang<span class="author-sep">·</span>Ruifeng Li<span class="author-sep">·</span>Biao Liu<span class="author-sep">·</span>Zhenzhe Sun<span class="author-sep">·</span>Tao Shen<sup>*</sup>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-dim);margin-top:0.4rem;">
+      <sup>†</sup>&thinsp;Equal contribution&emsp;<sup>*</sup>&thinsp;Corresponding author
+    </p>
+  </div>
+
+  <div class="hero-abstract">
+    Existing data generation methods suffer from exploration limits, embodiment gaps, and low signal-to-noise ratios,
+    leading to performance degradation during self-iteration. We propose <strong>Seed2Scale</strong>, a self-evolving data engine
+    that breaks the data bottleneck through a heterogeneous synergy of
+    <strong>"small-model collection, large-model evaluation, and target-model learning"</strong>.
+    Starting with as few as <strong>four seed demonstrations</strong>, the engine employs the lightweight VLA model
+    <strong>SuperTiny</strong> for robust parallel exploration, while a frozen <strong>Qwen3-VL-32B</strong> verifier
+    autonomously filters trajectories — achieving a <strong>209.15% performance improvement</strong> with no additional human annotations.
+  </div>
+
+  <div class="btn-group">
+    <a href="assets/seed2scale_v2.pdf" target="_blank" class="btn btn-primary">
+      <i class="ai ai-arxiv"></i>&nbsp;Paper PDF
+    </a>
+    <a href="#video" class="btn btn-outline">
+      <i class="fas fa-play-circle"></i>&nbsp;Demo Video
+    </a>
+    <a href="https://terminators2025.github.io/RealMirror.github.io/" target="_blank" rel="noopener" class="btn btn-accent">
+      <i class="fas fa-robot"></i>&nbsp;RealMirror Platform
+    </a>
+    <a href="#bibtex" class="btn btn-outline">
+      <i class="fas fa-quote-right"></i>&nbsp;BibTeX
+    </a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-value"><span class="counter" data-target="209" data-suffix="%">0%</span></div>
+      <div class="stat-label">Avg. Improvement</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-value"><span class="counter" data-target="4" data-suffix="">0</span></div>
+      <div class="stat-label">Seed Demos Required</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-value"><span class="counter" data-target="68" data-suffix="%">0%</span></div>
+      <div class="stat-label">Final Success Rate</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-value">26.3<span style="font-size:1rem;font-weight:500;color:var(--text-dim)"> Hz</span></div>
+      <div class="stat-label">SuperTiny Control Freq.</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-mouse"></div>
+    <span>SCROLL</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ ABSTRACT ══ -->
+<section id="abstract" class="s-white">
+  <div class="container">
+    <div class="abstract-grid">
+      <div>
+        <div class="sec-label">01 — Abstract</div>
+        <h2 class="sec-title">Breaking the<br>Data Bottleneck</h2>
+        <p class="sec-desc">A self-evolving framework that generates massive, high-quality robot trajectories from minimal human input, via heterogeneous model synergy.</p>
+
+        <!-- Animated data-flow visualization -->
+        <div class="abstract-viz" id="abstract-viz">
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" class="abstract-svg">
+            <!-- Grid lines -->
+            <defs>
+              <linearGradient id="avz-grad1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.5"/>
+              </linearGradient>
+              <linearGradient id="avz-grad2" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="var(--primary)" stop-opacity="0"/>
+                <stop offset="50%" stop-color="var(--primary)" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
+              </linearGradient>
+              <filter id="avz-glow">
+                <feGaussianBlur stdDeviation="2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- Horizontal scan lines -->
+            <line x1="0" y1="60" x2="320" y2="60" stroke="url(#avz-grad2)" stroke-width="0.5" opacity="0.4"/>
+            <line x1="0" y1="120" x2="320" y2="120" stroke="url(#avz-grad2)" stroke-width="0.5" opacity="0.4"/>
+
+            <!-- Seed node (left) -->
+            <circle cx="40" cy="90" r="6" fill="none" stroke="var(--primary)" stroke-width="1.2" opacity="0.7">
+              <animate attributeName="r" values="5;7;5" dur="3s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="40" cy="90" r="2.5" fill="var(--primary)" opacity="0.8"/>
+            <text x="40" y="112" text-anchor="middle" fill="var(--text-dim)" font-size="7" font-family="'JetBrains Mono', monospace" letter-spacing="0.05em">SEED</text>
+
+            <!-- Flow lines with animated particles -->
+            <path d="M52,90 C90,90 90,50 130,50" fill="none" stroke="url(#avz-grad1)" stroke-width="0.8" opacity="0.5"/>
+            <path d="M52,90 C90,90 90,90 130,90" fill="none" stroke="url(#avz-grad1)" stroke-width="0.8" opacity="0.5"/>
+            <path d="M52,90 C90,90 90,130 130,130" fill="none" stroke="url(#avz-grad1)" stroke-width="0.8" opacity="0.5"/>
+
+            <!-- Animated particles on paths -->
+            <circle r="2" fill="var(--primary)" opacity="0.8" filter="url(#avz-glow)">
+              <animateMotion dur="2.5s" repeatCount="indefinite" path="M52,90 C90,90 90,50 130,50"/>
+            </circle>
+            <circle r="2" fill="var(--accent)" opacity="0.8" filter="url(#avz-glow)">
+              <animateMotion dur="2.8s" repeatCount="indefinite" path="M52,90 C90,90 90,90 130,90" begin="0.5s"/>
+            </circle>
+            <circle r="2" fill="var(--primary)" opacity="0.8" filter="url(#avz-glow)">
+              <animateMotion dur="3s" repeatCount="indefinite" path="M52,90 C90,90 90,130 130,130" begin="1s"/>
+            </circle>
+
+            <!-- Middle processing nodes -->
+            <rect x="125" y="42" width="16" height="16" rx="3" fill="none" stroke="var(--accent)" stroke-width="0.8" opacity="0.6"/>
+            <rect x="125" y="82" width="16" height="16" rx="3" fill="none" stroke="var(--accent)" stroke-width="0.8" opacity="0.6"/>
+            <rect x="125" y="122" width="16" height="16" rx="3" fill="none" stroke="var(--accent)" stroke-width="0.8" opacity="0.6"/>
+
+            <!-- Inner dots -->
+            <circle cx="133" cy="50" r="2" fill="var(--accent)" opacity="0.7">
+              <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2s" repeatCount="indefinite" begin="0.2s"/>
+            </circle>
+            <circle cx="133" cy="90" r="2" fill="var(--accent)" opacity="0.7">
+              <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2s" repeatCount="indefinite" begin="0.8s"/>
+            </circle>
+            <circle cx="133" cy="130" r="2" fill="var(--accent)" opacity="0.7">
+              <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+            </circle>
+
+            <text x="133" y="157" text-anchor="middle" fill="var(--text-dim)" font-size="7" font-family="'JetBrains Mono', monospace" letter-spacing="0.05em">SYNERGY</text>
+
+            <!-- Converging lines to output -->
+            <path d="M145,50 C180,50 180,80 210,80" fill="none" stroke="url(#avz-grad1)" stroke-width="0.8" opacity="0.5"/>
+            <path d="M145,90 C175,90 175,90 210,90" fill="none" stroke="url(#avz-grad1)" stroke-width="0.8" opacity="0.5"/>
+            <path d="M145,130 C180,130 180,100 210,100" fill="none" stroke="url(#avz-grad1)" stroke-width="0.8" opacity="0.5"/>
+
+            <!-- Animated particles on output paths -->
+            <circle r="2" fill="var(--accent2)" opacity="0.8" filter="url(#avz-glow)">
+              <animateMotion dur="2s" repeatCount="indefinite" path="M145,50 C180,50 180,80 210,80" begin="1.5s"/>
+            </circle>
+            <circle r="2" fill="var(--accent2)" opacity="0.8" filter="url(#avz-glow)">
+              <animateMotion dur="2.2s" repeatCount="indefinite" path="M145,90 C175,90 175,90 210,90" begin="2s"/>
+            </circle>
+            <circle r="2" fill="var(--accent2)" opacity="0.8" filter="url(#avz-glow)">
+              <animateMotion dur="2.4s" repeatCount="indefinite" path="M145,130 C180,130 180,100 210,100" begin="2.5s"/>
+            </circle>
+
+            <!-- Output: Scale node cluster -->
+            <circle cx="220" cy="90" r="8" fill="none" stroke="var(--accent2)" stroke-width="1" opacity="0.6">
+              <animate attributeName="r" values="7;9;7" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="220" cy="90" r="3.5" fill="var(--accent2)" opacity="0.7"/>
+
+            <!-- Radiating lines from output -->
+            <line x1="230" y1="85" x2="260" y2="65" stroke="var(--accent2)" stroke-width="0.6" opacity="0.3"/>
+            <line x1="230" y1="90" x2="265" y2="90" stroke="var(--accent2)" stroke-width="0.6" opacity="0.3"/>
+            <line x1="230" y1="95" x2="260" y2="115" stroke="var(--accent2)" stroke-width="0.6" opacity="0.3"/>
+            <circle cx="260" cy="65" r="3" fill="none" stroke="var(--accent2)" stroke-width="0.6" opacity="0.4"/>
+            <circle cx="265" cy="90" r="3" fill="none" stroke="var(--accent2)" stroke-width="0.6" opacity="0.4"/>
+            <circle cx="260" cy="115" r="3" fill="none" stroke="var(--accent2)" stroke-width="0.6" opacity="0.4"/>
+
+            <!-- More radiating -->
+            <line x1="263" y1="63" x2="285" y2="52" stroke="var(--accent2)" stroke-width="0.4" opacity="0.2"/>
+            <line x1="263" y1="67" x2="285" y2="75" stroke="var(--accent2)" stroke-width="0.4" opacity="0.2"/>
+            <line x1="268" y1="88" x2="290" y2="82" stroke="var(--accent2)" stroke-width="0.4" opacity="0.2"/>
+            <line x1="268" y1="92" x2="290" y2="98" stroke="var(--accent2)" stroke-width="0.4" opacity="0.2"/>
+            <line x1="263" y1="113" x2="285" y2="105" stroke="var(--accent2)" stroke-width="0.4" opacity="0.2"/>
+            <line x1="263" y1="117" x2="285" y2="128" stroke="var(--accent2)" stroke-width="0.4" opacity="0.2"/>
+
+            <circle cx="285" cy="52" r="1.5" fill="var(--accent2)" opacity="0.3"/>
+            <circle cx="285" cy="75" r="1.5" fill="var(--accent2)" opacity="0.3"/>
+            <circle cx="290" cy="82" r="1.5" fill="var(--accent2)" opacity="0.3"/>
+            <circle cx="290" cy="98" r="1.5" fill="var(--accent2)" opacity="0.3"/>
+            <circle cx="285" cy="105" r="1.5" fill="var(--accent2)" opacity="0.3"/>
+            <circle cx="285" cy="128" r="1.5" fill="var(--accent2)" opacity="0.3"/>
+
+            <text x="260" y="145" text-anchor="middle" fill="var(--text-dim)" font-size="7" font-family="'JetBrains Mono', monospace" letter-spacing="0.05em">SCALE</text>
+          </svg>
+        </div>
+      </div>
+      <div class="abstract-text reveal">
+        <p>
+          The emergence of Vision-Language-Action (VLA) models is accelerating the evolution of Embodied AI. However,
+          the performance of these models remains strictly contingent upon large-scale, high-quality expert demonstration trajectories,
+          creating a critical <span class="hl">"data scarcity" bottleneck</span> that fundamentally obstructs the scaling of Generalist Embodied AI.
+        </p>
+        <p>
+          To address this, we propose <span class="hl">Seed2Scale</span>, a self-evolving data engine based on three synergistic roles:
+          a lightweight <span class="hl">SuperTiny collector</span> (πsmall) for high-throughput parallel exploration,
+          a frozen <span class="hl">Qwen3-VL verifier</span> (ΦVLV) for automated quality scoring,
+          and a target <span class="hl">SmolVLA model</span> (πtarget) trained exclusively on curated high-quality trajectories.
+        </p>
+        <p>
+          By integrating these heterogeneous components, the engine transforms a sparse set of 4 human demonstrations
+          into a continuous flow of verified training data. Experiments demonstrate a
+          <span class="hl">209.15% average performance improvement</span>, with the Can Stacking task alone achieving
+          <span class="hl">+778.67%</span> relative improvement. Code, data, and model checkpoints will be publicly available.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ VIDEO ══ -->
+<section id="video" class="s-gray">
+  <div class="container">
+    <div class="sec-label">02 — Overview Video</div>
+    <h2 class="sec-title">Display Video</h2>
+    <p class="sec-desc">A comprehensive demonstration of the Seed2Scale pipeline — from seed data collection to large-scale self-evolution and multi-task policy evaluation.</p>
+    <div class="video-wrap reveal" style="margin-top:2.5rem;">
+      <video controls muted loop preload="metadata">
+        <source src="assets/main_video.mp4" type="video/mp4">
+        <source src="assets/main_video.mkv" type="video/x-matroska">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ PIPELINE ══ -->
+<section id="pipeline" class="s-white">
+  <div class="container-lg">
+    <div class="sec-label">03 — Framework</div>
+    <h2 class="sec-title">The Seed2Scale Pipeline</h2>
+    <p class="sec-desc">From 4 boundary-point demonstrations to massive high-quality training data — a complete self-evolving ecosystem powering the target VLA model to new performance heights.</p>
+    <div class="fig-wrap reveal">
+      <img src="assets/img/Frist_main.png" alt="Seed2Scale self-evolving data engine pipeline overview" loading="lazy">
+      <div class="fig-caption">
+        Fig. 1 — The Seed2Scale self-evolving data engine. Starting with as few as four human demonstrations, SuperTiny performs large-scale parallel rollouts. Qwen3-VL acts as a Verifier, scoring and filtering raw trajectories. The curated D<sub>silver</sub> dataset trains SmolVLA through deep iterative learning — achieving robust scaling without massive manual annotations.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ METHOD ══ -->
+<section id="method" class="s-gray">
+  <div class="container">
+    <div class="sec-label">04 — Methodology</div>
+    <h2 class="sec-title">Heterogeneous Model Synergy</h2>
+    <p class="sec-desc">Three specialized roles working in concert, each exploiting distinct scale asymmetries to achieve what no single model can accomplish alone.</p>
+
+    <div class="method-grid">
+      <div class="method-card mc-blue reveal">
+        <div class="mc-icon ic-blue"><i class="fas fa-bolt"></i></div>
+        <h3>SuperTiny Collector</h3>
+        <p>A lightweight 48M-parameter VLA model with ResNet-18 vision, T5-Small language encoder, and a Transformer decoder with temporal ensembling. Achieves 26.3 Hz inference — 3.6× faster than Diffusion Policy. Bootstraps robustly from just 4 seed trajectories without overfitting.</p>
+        <span class="mc-tag tag-blue">π<sub>small</sub> · 48M params · 26.3 Hz</span>
+      </div>
+      <div class="method-card mc-purple reveal rv1">
+        <div class="mc-icon ic-purple"><i class="fas fa-shield-halved"></i></div>
+        <h3>VLM-as-a-Verifier</h3>
+        <p>Frozen Qwen3-VL-32B serves as the Vision-Language Verifier (VLV). For each trajectory τ, it receives task instruction, rollout video, and a reference demo, outputting a quality score S<sub>τ</sub> ∈ [0, 10]. Only trajectories with S<sub>τ</sub> ≥ γ enter D<sub>silver</sub>, preventing data-poisoning spirals.</p>
+        <span class="mc-tag tag-purple">Φ<sub>VLV</sub> · Qwen3-VL-32B · Frozen</span>
+      </div>
+      <div class="method-card mc-green reveal rv2">
+        <div class="mc-icon ic-green"><i class="fas fa-brain"></i></div>
+        <h3>SmolVLA Target Model</h3>
+        <p>The final policy (π<sub>target</sub>) trained via Conditional Flow Matching on curated D<sub>silver</sub>. Its Action Expert architecture interleaves Cross-Attention (CA) over vision-language context with Self-Attention (SA) for temporal coherence — enabling stable closed-loop deployment on Agibot A2 and GR-1 robots.</p>
+        <span class="mc-tag tag-green">π<sub>target</sub> · 450M params · Flow Matching</span>
+      </div>
+    </div>
+
+    <div class="flow-wrap reveal" style="margin-top:2.5rem;">
+      <div class="flow-label">Self-Evolution Loop</div>
+      <div class="flow-row">
+        <div class="flow-step">
+          <div class="flow-node fn-blue"><i class="fas fa-user"></i></div>
+          <h4>4 Seed Demos</h4>
+          <p>Boundary-point teleoperation</p>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-node fn-blue"><i class="fas fa-bolt"></i></div>
+          <h4>SuperTiny</h4>
+          <p>Parallel rollout N envs</p>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-node fn-purple"><i class="fas fa-filter"></i></div>
+          <h4>VLV Filter</h4>
+          <p>Score S ≥ γ threshold</p>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-node fn-green"><i class="fas fa-database"></i></div>
+          <h4>D<sub>silver</sub></h4>
+          <p>Curated trajectories</p>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-node fn-green"><i class="fas fa-brain"></i></div>
+          <h4>SmolVLA</h4>
+          <p>Target model training</p>
+        </div>
+        <div class="flow-loop" title="Iterative improvement">
+          <i class="fas fa-rotate"></i>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node" style="border-color:var(--accent2);background:var(--accent2-lt);color:var(--accent2)">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h4>Next Iteration</h4>
+          <p>D<sup>(i+1)</sup> = D<sup>(i)</sup> ∪ D<sub>silver</sub></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ RESULTS ══ -->
+<section id="results" class="s-white">
+  <div class="container-lg">
+    <div class="sec-label">05 — Qualitative Results</div>
+    <h2 class="sec-title">Task Demonstrations</h2>
+    <p class="sec-desc">Direct comparison between the 4-point-only baseline and Seed2Scale-augmented policy across representative manipulation tasks.</p>
+
+    <div class="demo-grid">
+      <div class="demo-card reveal">
+        <div class="demo-card-head">
+          <span class="demo-task-name">Kitchen Cleanup · Task 1</span>
+          <span class="badge badge-fail">BASELINE</span>
+          <span class="badge badge-pass" style="margin-left:.25rem">SEED2SCALE</span>
+        </div>
+        <div class="gif-row">
+          <div class="gif-col">
+            <img src="assets/gif1/task1_bad_case(4_point_only).gif" alt="Task 1 baseline failure" loading="lazy">
+            <div class="gif-lbl lbl-bad">4-Point Baseline</div>
+          </div>
+          <div class="gif-sep"></div>
+          <div class="gif-col">
+            <img src="assets/gif1/task1_good_case(seed2scale).gif" alt="Task 1 Seed2Scale success" loading="lazy">
+            <div class="gif-lbl lbl-good">Seed2Scale (Ours)</div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-card reveal rv1">
+        <div class="demo-card-head">
+          <span class="demo-task-name">Can Stacking · Task 4</span>
+          <span class="badge badge-fail">BASELINE</span>
+          <span class="badge badge-pass" style="margin-left:.25rem">SEED2SCALE</span>
+        </div>
+        <div class="gif-row">
+          <div class="gif-col">
+            <img src="assets/gif1/task4_bad_case(4_point_only).gif" alt="Task 4 baseline failure" loading="lazy">
+            <div class="gif-lbl lbl-bad">4-Point Baseline</div>
+          </div>
+          <div class="gif-sep"></div>
+          <div class="gif-col">
+            <img src="assets/gif1/task4_good_case(seed2scale).gif" alt="Task 4 Seed2Scale success" loading="lazy">
+            <div class="gif-lbl lbl-good">Seed2Scale (Ours)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:3.5rem;">
+      <div class="sec-label" style="margin-bottom:.7rem;">Seed2Scale vs. MimicGen on GR-1 Tasks</div>
+      <h3 class="sec-title" style="font-size:1.45rem;">Smoother Motion, Higher Success</h3>
+      <p class="sec-desc">Seed2Scale produces physically plausible, smooth trajectories. MimicGen's IK-based approach introduces severe high-frequency instability, yielding kinematically infeasible motions..</p>
+      <div class="compare-grid">
+        <div class="cmp-card reveal">
+          <div class="cmp-head"><span>Wheel Manipulation</span><span class="badge badge-fail">MimicGen</span></div>
+          <img src="assets/gif2/mimic_wheel.gif" alt="MimicGen Wheel" loading="lazy">
+          <div class="cmp-foot">Policy: 34.75% · Replay: 48.50%</div>
+        </div>
+        <div class="cmp-card reveal rv1">
+          <div class="cmp-head"><span>Wheel Manipulation</span><span class="badge badge-pass">Seed2Scale</span></div>
+          <img src="assets/gif2/seed2scale_wheel.gif" alt="Seed2Scale Wheel" loading="lazy">
+          <div class="cmp-foot">Policy: 93.25% ↑+168% · Replay: 67.86%</div>
+        </div>
+        <div class="cmp-card reveal rv2">
+          <div class="cmp-head"><span>Cylinder Grasping</span><span class="badge badge-fail">MimicGen</span></div>
+          <img src="assets/gif2/mimic_gunzi.gif" alt="MimicGen Cylinder" loading="lazy">
+          <div class="cmp-foot">Policy: 37.25% · Replay: 21.00%</div>
+        </div>
+        <div class="cmp-card reveal rv3">
+          <div class="cmp-head"><span>Cylinder Grasping</span><span class="badge badge-pass">Seed2Scale</span></div>
+          <img src="assets/gif2/seed2scale_gunzi.gif" alt="Seed2Scale Cylinder" loading="lazy">
+          <div class="cmp-foot">Policy: 66.00% ↑+77% · Replay: 86.96% ↑4×</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ METRICS ══ -->
+<section id="metrics" class="s-gray">
+  <div class="container">
+    <div class="sec-label">06 — Quantitative Results</div>
+    <h2 class="sec-title">Performance Metrics</h2>
+    <p class="sec-desc">Comprehensive evaluation across multiple tasks demonstrating consistent, large-scale improvements with only 4 seed demonstrations.</p>
+
+    <div class="metric-grid">
+      <div class="metric-card reveal">
+        <div class="metric-num mn-blue">+<span class="counter" data-target="209" data-suffix="%">0%</span></div>
+        <div class="metric-desc">Average relative improvement across all tasks</div>
+        <div class="metric-sub">22.18% → 68.57%</div>
+      </div>
+      <div class="metric-card reveal rv1">
+        <div class="metric-num mn-green">+<span class="counter" data-target="778" data-suffix="%">0%</span></div>
+        <div class="metric-desc">Best single-task improvement (Can Stacking)</div>
+        <div class="metric-sub">7.50% → 65.90%</div>
+      </div>
+      <div class="metric-card reveal rv2">
+        <div class="metric-num mn-purple"><span class="counter" data-target="4" data-suffix="×">0</span></div>
+        <div class="metric-desc">Replay success over MimicGen (Cylinder Grasping)</div>
+        <div class="metric-sub">21.00% → 86.96%</div>
+      </div>
+      <div class="metric-card reveal rv3">
+        <div class="metric-num mn-amber"><span class="counter" data-target="3" data-suffix=".6×">0</span></div>
+        <div class="metric-desc">SuperTiny speed vs. Diffusion Policy</div>
+        <div class="metric-sub">38ms vs 136ms inference</div>
+      </div>
+    </div>
+
+    <div style="margin-top:3rem;" class="reveal">
+      <h3 class="sec-title" style="font-size:1.3rem;margin-bottom:.4rem;">Agibot A2 Task Performance</h3>
+      <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1rem;">Multi-task joint training · 4 seed demos per task · H20 training / RTX 5090 inference</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Task</th><th>Seed Only</th><th>Seed2Scale (Ours)</th><th>Improvement</th></tr></thead>
+          <tbody>
+            <tr><td class="td-name">Kitchen Cleanup</td><td>24.63%</td><td class="td-good">71.43%</td><td class="td-great">+190.01%</td></tr>
+            <tr><td class="td-name">Cup-to-Cup Transfer</td><td>23.50%</td><td class="td-good">64.14%</td><td class="td-great">+172.94%</td></tr>
+            <tr><td class="td-name">Can Stacking</td><td>7.50%</td><td class="td-good">65.90%</td><td class="td-great">+778.67%</td></tr>
+            <tr><td class="td-name">Air Fryer Manipulation</td><td>33.08%</td><td class="td-good">72.82%</td><td class="td-great">+120.13%</td></tr>
+            <tr class="td-avg"><td class="td-name">Average</td><td>22.18%</td><td class="td-good">68.57%</td><td class="td-great">+209.15%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="margin-top:2.2rem;" class="reveal">
+      <h3 class="sec-title" style="font-size:1.3rem;margin-bottom:.4rem;">GR-1 Tasks: Seed2Scale vs. MimicGen</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Task</th><th>MimicGen</th><th>Seed2Scale</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td class="td-name" rowspan="3" style="border-right:1px solid var(--border)">Policy Success</td><td class="td-name">Cylinder Grasping</td><td class="td-bad">37.25%</td><td class="td-good">66.00%</td><td class="td-great">+77.18%</td></tr>
+            <tr><td class="td-name">Wheel Manipulation</td><td class="td-bad">34.75%</td><td class="td-good">93.25%</td><td class="td-great">+168.35%</td></tr>
+            <tr class="td-avg"><td class="td-name">Average</td><td>36.00%</td><td class="td-good">79.63%</td><td class="td-great">+121.19%</td></tr>
+            <tr><td class="td-name" rowspan="3" style="border-right:1px solid var(--border)">Replay Success</td><td class="td-name">Cylinder Grasping</td><td class="td-bad">21.00%</td><td class="td-good">86.96%</td><td class="td-great">+4.1×</td></tr>
+            <tr><td class="td-name">Wheel Manipulation</td><td class="td-bad">48.50%</td><td class="td-good">67.86%</td><td class="td-great">+39.92%</td></tr>
+            <tr class="td-avg"><td class="td-name">Average</td><td>34.75%</td><td class="td-good">77.41%</td><td class="td-great">+122.77%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="margin-top:2.2rem;" class="reveal">
+      <h3 class="sec-title" style="font-size:1.3rem;margin-bottom:.4rem;">Trajectory Quality (lower = better)</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Expert Demo</th><th>MimicGen</th><th>Seed2Scale</th></tr></thead>
+          <tbody>
+            <tr><td class="td-name">Total Variation ↓</td><td>1.32</td><td class="td-bad">3.68</td><td class="td-good">1.34</td></tr>
+            <tr><td class="td-name">Mean Abs. Jerk ↓</td><td>0.0063</td><td class="td-bad">0.0261</td><td class="td-good">0.0047</td></tr>
+            <tr class="td-avg"><td class="td-name">HF Power Ratio (%) ↓</td><td>0.22</td><td class="td-bad">2.07</td><td class="td-good">0.30</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="fig-pair" style="margin-top:1.6rem;">
+        <div class="fig-block reveal">
+          <img src="assets/extra_img/motor_curve_compare.png"
+               alt="Motor joint position curves comparing Expert Demonstration, MimicGen and Seed2Scale across 4 joints"
+               loading="lazy">
+          <div class="fig-caption">
+            <strong>Fig. — Joint Motor Curve Comparison.</strong>
+            Position trajectories (rad) for four representative joints over a full manipulation episode.
+            Seed2Scale (orange dashed) closely tracks the Expert Demonstration (green dotted) in both amplitude and phase, while MimicGen (blue solid) diverges significantly — reflecting its higher Total Variation and Jerk scores in the table.
+          </div>
+        </div>
+        <div class="fig-block reveal rv1">
+          <img src="assets/extra_img/collector_comparison.png"
+               alt="Ablation: Success Rate of SuperTiny vs SuperTiny-minus, Diffusion Policy and ACT across 7 self-evolution iterations"
+               loading="lazy">
+          <div class="fig-caption">
+            <strong>Fig. — Collector Ablation: Success Rate over Self-Evolution Iterations.</strong>
+            SuperTiny (full model) consistently outperforms its ablated variant SuperTiny⁻ (without key components), Diffusion Policy, and ACT across all 7 iterations — plateauing near 50% while alternatives remain below 40% — confirming the critical role of SuperTiny's design choices in driving self-evolution.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card reveal">
+        <div class="chart-title">Scaling: Target Model vs. Self-Evolution Iteration</div>
+        <div class="chart-sub">Can Stacking — SmolVLA success rate across 8 iterations</div>
+        <svg class="chart-svg" viewBox="0 0 340 180" xmlns="http://www.w3.org/2000/svg">
+          <line x1="36" y1="10" x2="36" y2="155" stroke="#e5e7eb" stroke-width="1"/>
+          <line x1="36" y1="155" x2="330" y2="155" stroke="#e5e7eb" stroke-width="1"/>
+          <line x1="36" y1="120" x2="330" y2="120" stroke="#e5e7eb" stroke-width=".8" stroke-dasharray="4 3"/>
+          <line x1="36" y1="85"  x2="330" y2="85"  stroke="#e5e7eb" stroke-width=".8" stroke-dasharray="4 3"/>
+          <line x1="36" y1="50"  x2="330" y2="50"  stroke="#e5e7eb" stroke-width=".8" stroke-dasharray="4 3"/>
+          <text x="28" y="158" fill="#9ca3af" font-size="7.5" text-anchor="end">0%</text>
+          <text x="28" y="123" fill="#9ca3af" font-size="7.5" text-anchor="end">20%</text>
+          <text x="28" y="88"  fill="#9ca3af" font-size="7.5" text-anchor="end">40%</text>
+          <text x="28" y="53"  fill="#9ca3af" font-size="7.5" text-anchor="end">60%</text>
+          <defs>
+            <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#2563eb"/>
+              <stop offset="100%" stop-color="#0ea5e9"/>
+            </linearGradient>
+            <linearGradient id="area1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2563eb" stop-opacity=".12"/>
+              <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <polygon points="36,145 72,140 108,130 144,118 180,102 216,90 252,79 288,70 324,60 324,155 36,155" fill="url(#area1)"/>
+          <polyline points="36,145 72,140 108,130 144,118 180,102 216,90 252,79 288,70 324,60"
+            fill="none" stroke="url(#lg1)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="36"  cy="145" r="3.5" fill="#2563eb"/>
+          <circle cx="72"  cy="140" r="3.5" fill="#2563eb"/>
+          <circle cx="108" cy="130" r="3.5" fill="#2563eb"/>
+          <circle cx="144" cy="118" r="3.5" fill="#2563eb"/>
+          <circle cx="180" cy="102" r="3.5" fill="#2563eb"/>
+          <circle cx="216" cy="90"  r="3.5" fill="#0ea5e9"/>
+          <circle cx="252" cy="79"  r="3.5" fill="#0ea5e9"/>
+          <circle cx="288" cy="70"  r="3.5" fill="#0ea5e9"/>
+          <circle cx="324" cy="60"  r="3.5" fill="#0ea5e9"/>
+          <text x="36"  y="168" fill="#9ca3af" font-size="7" text-anchor="middle">0</text>
+          <text x="72"  y="168" fill="#9ca3af" font-size="7" text-anchor="middle">1</text>
+          <text x="108" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">2</text>
+          <text x="144" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">3</text>
+          <text x="180" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">4</text>
+          <text x="216" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">5</text>
+          <text x="252" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">6</text>
+          <text x="288" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">7</text>
+          <text x="324" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">8</text>
+          <text x="183" y="179" fill="#6b7280" font-size="7.5" text-anchor="middle">Self-Evolution Iteration →</text>
+          <text x="329" y="56" fill="#059669" font-size="7.5" text-anchor="end">~50%+</text>
+        </svg>
+      </div>
+      <div class="chart-card reveal rv1">
+        <div class="chart-title">Success Rate — Seed Only vs. Seed2Scale</div>
+        <div class="chart-sub">Per-task comparison on Agibot A2</div>
+        <div class="bar-list" id="bar-list">
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-lbl">Kitchen Cleanup</span></div>
+            <div class="bar-track" style="margin-bottom:.28rem">
+              <div class="bar-fill bf-seed" data-w="24.63%"></div>
+            </div>
+            <div class="bar-track"><div class="bar-fill bf-s2s" data-w="71.43%"></div></div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-lbl">Cup-to-Cup Transfer</span></div>
+            <div class="bar-track" style="margin-bottom:.28rem">
+              <div class="bar-fill bf-seed" data-w="23.5%"></div>
+            </div>
+            <div class="bar-track"><div class="bar-fill bf-s2s" data-w="64.14%"></div></div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-lbl">Can Stacking</span></div>
+            <div class="bar-track" style="margin-bottom:.28rem">
+              <div class="bar-fill bf-seed" data-w="7.5%"></div>
+            </div>
+            <div class="bar-track"><div class="bar-fill bf-s2s" data-w="65.9%"></div></div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-header"><span class="bar-lbl">Air Fryer Manipulation</span></div>
+            <div class="bar-track" style="margin-bottom:.28rem">
+              <div class="bar-fill bf-seed" data-w="33.08%"></div>
+            </div>
+            <div class="bar-track"><div class="bar-fill bf-s2s" data-w="72.82%"></div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:.9rem;font-size:.7rem;color:var(--text-muted)">
+          <span><span style="display:inline-block;width:10px;height:4px;background:#fca5a5;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Seed Only</span>
+          <span><span style="display:inline-block;width:10px;height:4px;background:var(--primary);border-radius:2px;vertical-align:middle;margin-right:4px"></span>Seed2Scale</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ MODEL ARCHITECTURE ══ -->
+<section id="model" class="s-white">
+  <div class="container">
+    <div class="sec-label">07 — Architecture</div>
+    <h2 class="sec-title">Model Specifications</h2>
+    <p class="sec-desc">Scale asymmetry by design — a tiny collector enables massive parallel exploration, a large frozen VLM ensures quality, and a mid-size target model generalizes across tasks.</p>
+
+    <div class="spec-grid">
+      <div class="spec-card reveal">
+        <div class="spec-head">
+          <div class="spec-icon ic-blue"><i class="fas fa-bolt"></i></div>
+          <div><h3>SuperTiny VLA</h3><div style="font-size:.73rem;color:var(--text-muted)">Small-Scale Collector · π<sub>small</sub></div></div>
+          <span class="spec-badge tag-blue">48M</span>
+        </div>
+        <ul class="spec-rows">
+          <li><span class="sk">Vision Encoder</span><span class="sv">ResNet-18 (3 cams)</span></li>
+          <li><span class="sk">Language Encoder</span><span class="sv">T5-Small (frozen)</span></li>
+          <li><span class="sk">Decoder</span><span class="sv">Transformer (cross-attn)</span></li>
+          <li><span class="sk">Action Chunk K</span><span class="sv sv-hl">30</span></li>
+          <li><span class="sk">Inference Time</span><span class="sv sv-hl">38.08 ms</span></li>
+          <li><span class="sk">Control Frequency</span><span class="sv sv-hl">26.3 Hz</span></li>
+          <li><span class="sk">Ensembling</span><span class="sv">Exp. temporal (λ)</span></li>
+          <li><span class="sk">Hardware</span><span class="sv">RTX 5090</span></li>
+        </ul>
+      </div>
+      <div class="spec-card reveal rv1">
+        <div class="spec-head">
+          <div class="spec-icon ic-purple"><i class="fas fa-shield-halved"></i></div>
+          <div><h3>Vision-Language Verifier</h3><div style="font-size:.73rem;color:var(--text-muted)">Large-Scale Evaluator · Φ<sub>VLV</sub></div></div>
+          <span class="spec-badge tag-purple">32B</span>
+        </div>
+        <ul class="spec-rows">
+          <li><span class="sk">Base Model</span><span class="sv sv-hl">Qwen3-VL-32B</span></li>
+          <li><span class="sk">Mode</span><span class="sv">Frozen (no fine-tuning)</span></li>
+          <li><span class="sk">Input 1</span><span class="sv">Task instruction g</span></li>
+          <li><span class="sk">Input 2</span><span class="sv">Rollout video V<sub>τ</sub></span></li>
+          <li><span class="sk">Input 3</span><span class="sv">Reference video V<sub>ref</sub></span></li>
+          <li><span class="sk">Output Score</span><span class="sv sv-hl">S<sub>τ</sub> ∈ [0, 10]</span></li>
+          <li><span class="sk">Role</span><span class="sv">Success/Fail + Quality</span></li>
+          <li><span class="sk">Threshold γ</span><span class="sv">Configurable per task</span></li>
+        </ul>
+      </div>
+      <div class="spec-card reveal rv2" style="grid-column: 1 / -1;">
+        <div class="spec-head">
+          <div class="spec-icon ic-green"><i class="fas fa-brain"></i></div>
+          <div><h3>SmolVLA Target Model</h3><div style="font-size:.73rem;color:var(--text-muted)">Final Policy · Conditional Flow Matching · π<sub>target</sub></div></div>
+          <span class="spec-badge tag-green">450M</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr">
+          <ul class="spec-rows" style="border-right:1px solid rgba(0,0,0,.05)">
+            <li><span class="sk">Parameters</span><span class="sv sv-hl">450M</span></li>
+            <li><span class="sk">Objective</span><span class="sv">Conditional Flow Matching</span></li>
+            <li><span class="sk">Optimizer</span><span class="sv">AdamW</span></li>
+            <li><span class="sk">Learning Rate</span><span class="sv sv-hl">3 × 10⁻⁴</span></li>
+          </ul>
+          <ul class="spec-rows">
+            <li><span class="sk">Training Steps</span><span class="sv sv-hl">100,000</span></li>
+            <li><span class="sk">Action Arch.</span><span class="sv">CA + SA Action Expert</span></li>
+            <li><span class="sk">Training Data</span><span class="sv">D<sub>silver</sub> (curated)</span></li>
+            <li><span class="sk">Deployment</span><span class="sv">Agibot A2 / GR-1</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-fig reveal" style="margin-top:2.8rem;">
+      <img src="assets/extra_img/supertiny_model.png"
+           alt="SuperTiny VLA Architecture: Vision-State-Language Encoder, Multimodal Decoder, and Action Head with Temporal Ensembling"
+           loading="lazy">
+      <div class="fig-caption">
+        <strong>Fig. — SuperTiny VLA Architecture.</strong>
+        Three camera inputs are encoded by a shared ResNet backbone into 192 visual tokens; robot joint states pass through a State MLP into state tokens; and task instructions are embedded via a frozen T5 encoder into language tokens.
+        All three token streams are fused in a <em>Multimodal Decoder</em> (N layers of Self-Attention → Cross-Attention → FFN), producing a 30×128 action sequence refined by an <em>Action Head</em> with Temporal Ensembling (λ) for smooth 26.3 Hz closed-loop control.
+      </div>
+    </div>
+  </div>
+</section>
+<section id="demo" class="s-gray">
+  <div class="container-lg">
+    <div class="sec-label">08 — Multi-Task Demo</div>
+    <h2 class="sec-title">Four-Task Generalization</h2>
+    <p class="sec-desc">Multi-task joint training with cross-task knowledge transfer consistently achieves higher success rates than single-task training. The target model generalizes across diverse manipulation scenarios on the Agibot A2 robot platform.</p>
+
+    <div class="four-gif-wrap reveal">
+      <div class="four-gif">
+        <img src="assets/gif2/4task.gif" alt="Seed2Scale four-task generalization" loading="lazy">
+      </div>
+    </div>
+
+    <div class="method-grid" style="margin-top:2rem;grid-template-columns:repeat(2,1fr);">
+      <div class="method-card mc-blue reveal">
+        <div class="mc-icon ic-blue"><i class="fas fa-hand-sparkles"></i></div>
+        <h3>Kitchen Cleanup</h3>
+        <p>Pick up chip from the table, then place it into the basket. Tests precise grasping and placement from arbitrary positions beyond the 4 seed locations.</p>
+        <span class="mc-tag tag-blue">Success Rate: 71.43%</span>
+      </div>
+      <div class="method-card mc-purple reveal rv1">
+        <div class="mc-icon ic-purple"><i class="fas fa-arrows-left-right"></i></div>
+        <h3>Cup-to-Cup Transfer</h3>
+        <p>Pour berries from the right cup into the left cup. Requires fine motor control and understanding of granular transfer dynamics with non-uniform objects.</p>
+        <span class="mc-tag tag-purple">Success Rate: 64.14%</span>
+      </div>
+      <div class="method-card mc-green reveal rv2">
+        <div class="mc-icon ic-green"><i class="fas fa-layer-group"></i></div>
+        <h3>Can Stacking</h3>
+        <p>Stack cans from both sides into the center with stable placement. Most dramatic improvement (+778%), requiring complex spatial reasoning far beyond the 4 seed demos.</p>
+        <span class="mc-tag tag-green">Success Rate: 65.90%</span>
+      </div>
+      <div class="method-card mc-blue reveal rv3">
+        <div class="mc-icon ic-blue"><i class="fas fa-fire-burner"></i></div>
+        <h3>Air Fryer Manipulation</h3>
+        <p>Open the air fryer drawer and place food items inside. Tests multi-step manipulation with articulated objects, requiring precise door-handle grasping and coordinated placement.</p>
+        <span class="mc-tag tag-blue">Success Rate: 72.82%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ PAPER ══ -->
+<section id="paper" class="s-white">
+  <div class="container">
+    <div class="sec-label">09 — Paper</div>
+    <h2 class="sec-title">Full Paper</h2>
+    <p class="sec-desc">Submitted to IROS 2026 (Manuscript 2162). Complete methodology, experimental setup, ablation studies, and theoretical analysis.</p>
+    <div class="pdf-wrap reveal">
+      <iframe src="assets/seed2scale_v2.pdf#toolbar=0&view=FitH" title="Seed2Scale IROS 2026 paper" loading="lazy"></iframe>
+    </div>
+    <div style="text-align:center;margin-top:1.3rem;">
+      <a href="assets/seed2scale_v2.pdf" target="_blank" class="btn btn-outline">
+        <i class="fas fa-external-link-alt"></i>&nbsp;Open in New Tab
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ SPECIAL THANKS ══ -->
+<section id="thanks" class="s-gray">
+  <div class="container">
+    <div class="sec-label">10 — Acknowledgements</div>
+    <h2 class="sec-title">Special Thanks</h2>
+    <p class="sec-desc">AGIBot A2 for seed2scale.</p>
+
+    <div class="thanks-wrap reveal">
+      <div class="thanks-banner">
+        <img src="assets/img/banner.jpg" alt="AGiBot collaboration banner">
+      </div>
+      <div class="thanks-text">
+        <h3>AGiBot provides A2 robot model and open-source support</h3>
+        <p>
+          We extend our sincere gratitude to <strong>AGiBot</strong> for providing the Agibot A2 robot model and open-source support
+          that made the large-scale experimental validation of Seed2Scale possible.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ BIBTEX ══ -->
+<section id="bibtex" class="s-white">
+  <div class="container">
+    <div class="sec-label">11 — Citation</div>
+    <h2 class="sec-title">BibTeX</h2>
+    <p class="sec-desc">If you find Seed2Scale useful in your research, please consider citing our work.</p>
+
+    <div class="bib-wrap reveal">
+      <div class="bib-bar">
+        <div style="display:flex;align-items:center;gap:.5rem;">
+          <div class="win-dots">
+            <div class="wd wd-r"></div>
+            <div class="wd wd-y"></div>
+            <div class="wd wd-g"></div>
+          </div>
+          <span class="bib-fname">seed2scale.bib</span>
+        </div>
+        <button class="copy-btn" onclick="copyBib()" id="copy-btn">
+          <i class="fas fa-copy"></i><span id="copy-lbl">Copy</span>
+        </button>
+      </div>
+  <pre class="bib-code" id="bib-code"><span class="bk">@article</span>{<span class="bf">tai2026seed2scale</span>,
+  <span class="bk">title</span>   = {<span class="bv">Seed2Scale: A Self-Evolving Data Engine for Embodied AI via Small to Large Model Synergy and Multimodal Evaluation</span>},
+  <span class="bk">author</span>  = {<span class="bv">Tai, Cong and Zheng, Zhaoyu and Long, Haixu and Wu, Hansheng and Long, Zhengbin and Xiang, Haodong and Shi, Rong and Cui, Zhuo and Zhang, Shizhuang and Qiu, Gang and Wang, He and Li, Ruifeng and Liu, Biao and Sun, Zhenzhe and Shen, Tao</span>},
+  <span class="bk">journal</span> = {<span class="bv">arXiv preprint arXiv:2603.08260</span>},
+  <span class="bk">year</span>    = {<span class="bv">2026</span>}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">SEED2SCALE</div>
+    <p>
+      Submitted to IROS 2026 — IEEE/RSJ International Conference on Intelligent Robots and Systems.<br>
+      CONFIDENTIAL. Limited circulation. For review only.
+    </p>
+    <p style="margin-top:.6rem;">
+      Built with reference to <a href="https://nerfies.github.io" target="_blank" rel="noopener">Nerfies</a>
+      and the <a href="https://RealMirror.github.io" target="_blank" rel="noopener">RealMirror</a> project page.
+      Licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.
+    </p>
+  </div>
+</footer>
+
+<!-- ══ SCRIPTS ══ -->
+<script>
+/* ─── NAVBAR SCROLL ─── */
+const nb = document.getElementById('navbar');
+addEventListener('scroll', () => {
+  nb.classList.toggle('scrolled', scrollY > 55);
+});
+
+/* ─── SCROLL REVEAL ─── */
+(function () {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -35px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  const vizEl = document.getElementById('abstract-viz');
+  if (vizEl) io.observe(vizEl);
+})();
+
+/* ─── COUNTER ANIMATION ─── */
+(function () {
+  function run(el) {
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const dur = 1800, step = 14, steps = dur / step;
+    let cur = 0;
+    const inc = target / steps;
+    const isFloat = String(target).includes('.');
+    const t = setInterval(() => {
+      cur += inc;
+      if (cur >= target) { cur = target; clearInterval(t); }
+      el.textContent = (isFloat ? cur.toFixed(1) : Math.floor(cur)) + suffix;
+    }, step);
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { run(e.target); io.unobserve(e.target); } });
+  }, { threshold: .5 });
+  document.querySelectorAll('.counter[data-target]').forEach(c => io.observe(c));
+})();
+
+/* ─── ANIMATED BARS ─── */
+(function () {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        setTimeout(() => { e.target.style.width = e.target.dataset.w; }, 120);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: .15 });
+  document.querySelectorAll('.bar-fill').forEach(b => {
+    b.dataset.w = b.dataset.w || b.style.width;
+    b.style.width = '0';
+    io.observe(b);
+  });
+})();
+
+/* ─── BIBTEX COPY ─── */
+  function copyBib() {
+  const text = `@article{tai2026seed2scale,
+  title   = {Seed2Scale: A Self-Evolving Data Engine for Embodied AI via Small to Large Model Synergy and Multimodal Evaluation},
+  author  = {Tai, Cong and Zheng, Zhaoyu and Long, Haixu and Wu, Hansheng and Long, Zhengbin and Xiang, Haodong and Shi, Rong and Cui, Zhuo and Zhang, Shizhuang and Qiu, Gang and Wang, He and Li, Ruifeng and Liu, Biao and Sun, Zhenzhe and Shen, Tao},
+  journal = {arXiv preprint arXiv:2603.08260},
+  year    = {2026}
+}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    const lbl = document.getElementById('copy-lbl');
+    btn.classList.add('copied');
+    lbl.textContent = 'Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); lbl.textContent = 'Copy'; }, 2600);
+  }).catch(() => alert('Please copy manually:\n\n' + text));
+}
+
+/* ─── SMOOTH ANCHOR SCROLL ─── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+
+/* ─── CRYSTAL TREE GROWTH (Seed → Scale) ─── */
+(function () {
+  const cvs = document.getElementById('tree-canvas');
+  const ctx = cvs.getContext('2d');
+  let W, H;
+
+  const PRIMARY = { r: 37, g: 99, b: 235 };
+  const ACCENT  = { r: 124, g: 58, b: 237 };
+  const ACCENT2 = { r: 5, g: 150, b: 105 };
+  const CYAN    = { r: 14, g: 165, b: 233 };
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function lerpColor(c1, c2, t) {
+    return { r: lerp(c1.r, c2.r, t), g: lerp(c1.g, c2.g, t), b: lerp(c1.b, c2.b, t) };
+  }
+  function rgba(c, a) { return `rgba(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)},${a})`; }
+
+  let treeNodes = [];
+  let treeEdges = [];
+  let builtPhase = false;
+  let startTime = 0;
+  const SEED_DELAY = 600;
+  const GROW_DURATION = 4500;
+  const TOTAL_ANIM = SEED_DELAY + GROW_DURATION + 800;
+
+  // ── Master opacity knob for the tree effect ───────────────────────────────
+  // Range: 0.0 (invisible) → 1.0 (full opacity).  Tweak this single value
+  // to make the whole tree (edges + nodes + glow + hexagons) lighter or darker.
+  const TREE_OPACITY = 0.55;
+
+  function resize() {
+    W = cvs.width = cvs.parentElement.clientWidth;
+    H = cvs.height = cvs.parentElement.clientHeight;
+    if (!builtPhase) buildTree();
+  }
+
+  function buildTree() {
+    builtPhase = true;
+    treeNodes = [];
+    treeEdges = [];
+
+    const cx     = W / 2;
+    const rootY  = H - 130;
+    const topY   = 60;
+    const totalH = rootY - topY;
+
+    // ── Fractal parameters ────────────────────────────────────────────────────
+    const DEPTH        = 6;          // recursion depth  → 2^0+…+2^6 = 127 nodes max
+    const TRUNK_LEN    = totalH * 0.28;  // first branch length
+    const LEN_RATIO    = 0.85;       // each level shrinks to this fraction
+    const BRANCH_ANGLE = 35;         // ±degrees from parent direction (symmetric)
+    // Tiny jitter so the tree feels organic but stays visually symmetric
+    // (left/right share the same jitter magnitude via a seeded pattern)
+    const JITTER       = 0.06;       // fraction of branch length
+
+    let nodeId = 0;
+
+    function addNode(parentId, x, y, depth) {
+      const progress = depth / DEPTH;                         // 0=root … 1=tip
+      const color    = lerpColor(PRIMARY, progress > 0.5 ? ACCENT2 : CYAN, progress);
+      const r        = Math.max(3, 8.5 - depth * 1.1);
+      const nid      = nodeId++;
+      treeNodes.push({ id: nid, x, y, layer: depth, radius: r, color,
+                       parentId, isLeaf: false });
+      if (parentId >= 0) treeEdges.push({ from: parentId, to: nid, layer: depth });
+      return nid;
+    }
+
+    // ── Symmetric fractal recursion ───────────────────────────────────────────
+    // `dir` is the current direction in degrees (0 = straight up, +CW).
+    // At each node we spawn left child (dir - BRANCH_ANGLE) and
+    // right child (dir + BRANCH_ANGLE) — perfectly mirrored.
+    function branch(parentId, x, y, len, dir, depth) {
+      if (depth > DEPTH) return;
+
+      const leftDir  = dir - BRANCH_ANGLE;
+      const rightDir = dir + BRANCH_ANGLE;
+
+      [leftDir, rightDir].forEach((d, side) => {
+        const rad = (d * Math.PI) / 180;
+        // Mirror-symmetric jitter: same magnitude, opposite horizontal sign
+        const jMirror = (side === 0 ? -1 : 1) * JITTER * len;
+        const nx = x + Math.sin(rad) * len + jMirror;
+        const ny = y - Math.cos(rad) * len;
+
+        // Skip branches that go off-screen or above ceiling
+        if (ny < topY - 40) return;
+
+        const nid = addNode(parentId, nx, ny, depth);
+        branch(nid, nx, ny, len * LEN_RATIO, d, depth + 1);
+      });
+    }
+
+    // Root node
+    const rootId = addNode(-1, cx, rootY, 0);
+    // First two trunks start at ±BRANCH_ANGLE from vertical (dir=0)
+    branch(rootId, cx, rootY, TRUNK_LEN, 0, 1);
+
+    // ── Mark leaves & timing ─────────────────────────────────────────────────
+    const parentSet = new Set(treeEdges.map(e => e.from));
+    treeNodes.forEach(n => {
+      n.isLeaf   = n.layer > 0 && !parentSet.has(n.id);
+      n.normTime = n.layer / DEPTH;
+    });
+
+    builtPhase = true;
+  }
+
+  function drawGrid(alpha) {
+    if (alpha <= 0) return;
+    const spacing = 56;
+    ctx.strokeStyle = rgba(PRIMARY, 0.035 * alpha);
+    ctx.lineWidth = 0.5;
+    for (let x = spacing; x < W; x += spacing) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = spacing; y < H; y += spacing) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+  }
+
+  function drawTree(progress, time) {
+    const seedAlpha = Math.min(1, progress / 0.05);
+    const growProgress = Math.max(0, (progress - 0.05) / 0.85);
+    const treeComplete = progress >= 1.0;
+
+    treeEdges.forEach(e => {
+      const fromN = treeNodes[e.from];
+      const toN = treeNodes[e.to];
+      const edgeTime = toN.normTime;
+      if (growProgress < edgeTime) return;
+
+      const edgeAlpha = Math.min(1, (growProgress - edgeTime) / 0.12);
+      const t = toN.normTime;
+      const color = lerpColor(PRIMARY, t > 0.6 ? ACCENT2 : CYAN, t);
+
+      ctx.globalAlpha = edgeAlpha * 0.55 * TREE_OPACITY;
+      ctx.strokeStyle = rgba(color, 0.65 * TREE_OPACITY);
+      ctx.lineWidth = Math.max(1, 3.5 - e.layer * 0.28);
+      ctx.beginPath();
+      ctx.moveTo(fromN.x, fromN.y);
+      const midX = (fromN.x + toN.x) / 2;
+      const midY = (fromN.y + toN.y) / 2 - 5;
+      ctx.quadraticCurveTo(midX, midY, toN.x, toN.y);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    treeNodes.forEach(n => {
+      let alpha;
+      if (n.layer === 0) {
+        alpha = seedAlpha;
+      } else {
+        if (growProgress < n.normTime) return;
+        alpha = Math.min(1, (growProgress - n.normTime) / 0.1);
+      }
+
+      // Leaf blink after tree is fully grown
+      let leafBlink = 1;
+      if (treeComplete && n.isLeaf) {
+        leafBlink = 0.45 + 0.55 * Math.abs(Math.sin(time * 0.0018 + n.id * 1.3));
+      }
+
+      const pulse = 0.88 + 0.12 * Math.sin(time * 0.003 + n.id * 0.7);
+      const r = n.radius * pulse;
+      const effectiveAlpha = alpha * leafBlink * TREE_OPACITY;
+
+      // Glow
+      const glow = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 5);
+      glow.addColorStop(0, rgba(n.color, 0.18 * effectiveAlpha));
+      glow.addColorStop(1, rgba(n.color, 0));
+      ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(n.x, n.y, r * 5, 0, Math.PI * 2); ctx.fill();
+
+      // Core dot
+      ctx.fillStyle = rgba(n.color, 0.85 * effectiveAlpha);
+      ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2); ctx.fill();
+
+      // Crystal hexagon facet (inner + outer nodes)
+      ctx.strokeStyle = rgba(n.color, 0.45 * effectiveAlpha);
+      ctx.lineWidth = 1;
+      if (n.layer > 0) {
+        const facets = 6;
+        const fR = r * 2.5;
+        ctx.beginPath();
+        for (let i = 0; i <= facets; i++) {
+          const a = (i / facets) * Math.PI * 2 - Math.PI / 6;
+          const fx = n.x + Math.cos(a) * fR;
+          const fy = n.y + Math.sin(a) * fR;
+          i === 0 ? ctx.moveTo(fx, fy) : ctx.lineTo(fx, fy);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      // Root node bright pulse
+      if (n.layer === 0 && alpha > 0.3) {
+        ctx.fillStyle = rgba(n.color, 0.65 * alpha * pulse * TREE_OPACITY);
+        ctx.beginPath(); ctx.arc(n.x, n.y, r * 1.4, 0, Math.PI * 2); ctx.fill();
+      }
+    });
+  }
+
+  function drawLabels(progress, time) {
+    const seedAlpha = Math.min(1, Math.max(0, (progress - 0.02) / 0.08));
+    const scaleAlpha = Math.min(1, Math.max(0, (progress - 0.75) / 0.15));
+
+    if (treeNodes.length === 0) return;
+    const root = treeNodes[0];
+
+    if (seedAlpha > 0) {
+      ctx.save();
+      ctx.font = '700 16px "Inter", sans-serif';
+      ctx.fillStyle = rgba(PRIMARY, 0.65 * seedAlpha);
+      ctx.textAlign = 'center';
+      ctx.fillText('seed demonstrations', root.x, root.y - 18);
+      ctx.restore();
+    }
+
+    if (scaleAlpha > 0) {
+      const topNodes = treeNodes.filter(n => n.y < H * 0.2);
+      let labelX = W / 2;
+      let labelY = 55;
+      if (topNodes.length > 0) {
+        const avgX = topNodes.reduce((s, n) => s + n.x, 0) / topNodes.length;
+        const minY = Math.min(...topNodes.map(n => n.y));
+        labelX = avgX;
+        labelY = Math.max(35, minY - 20);
+      }
+
+      ctx.save();
+      ctx.font = '700 16px "Inter", sans-serif';
+      ctx.fillStyle = rgba(ACCENT2, 0.85 * scaleAlpha);
+      ctx.textAlign = 'center';
+      ctx.letterSpacing = '0.08em';
+      ctx.fillText('LARGE SCALE', labelX, labelY);
+      ctx.restore();
+    }
+  }
+
+  function drawScanlines(progress, time) {
+    if (progress < 0.08) return;
+    const scanProgress = (progress - 0.08) / 0.92;
+    const scanY = H - (H * scanProgress);
+    const alpha = 0.06 + 0.04 * Math.sin(time * 0.002);
+
+    const grad = ctx.createLinearGradient(0, scanY - 30, 0, scanY + 30);
+    grad.addColorStop(0, rgba(PRIMARY, 0));
+    grad.addColorStop(0.5, rgba(PRIMARY, alpha));
+    grad.addColorStop(1, rgba(PRIMARY, 0));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, scanY - 30, W, 60);
+  }
+
+  let animFrame = 0;
+  function frame(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = ts - startTime;
+    animFrame++;
+
+    ctx.clearRect(0, 0, W, H);
+
+    const rawProgress = Math.min(1, elapsed / TOTAL_ANIM);
+    const progress = rawProgress < 0.05 ? rawProgress : 0.05 + 0.95 * easeOutCubic((rawProgress - 0.05) / 0.95);
+
+    const gridAlpha = Math.min(1, elapsed / 1500);
+    drawGrid(gridAlpha);
+    drawScanlines(progress, elapsed);
+    drawTree(progress, elapsed);
+    drawLabels(progress, elapsed);
+
+    requestAnimationFrame(frame);
+  }
+
+  function easeOutCubic(t) {
+    t = Math.max(0, Math.min(1, t));
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  resize();
+  addEventListener('resize', () => { builtPhase = false; startTime = 0; resize(); });
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>

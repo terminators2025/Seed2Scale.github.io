@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Seed2Scale: A Self-Evolving Data Engine for Embodied AI</title>
-  <meta name="description" content="Seed2Scale is a self-evolving data engine that overcomes the data bottleneck in Embodied AI through heterogeneous synergy of small-model collection, large-model evaluation, and target-model learning.">
-  <meta name="keywords" content="Embodied AI, VLA, Vision-Language-Action, Self-Evolving, Data Engine, SuperTiny, SmolVLA, Robot Learning, IROS 2026">
+  <title>Seed2Scale: A Self-Evolving Data Engine with Parallel Worlds Expansion for Scalable Robot Learning</title>
+  <meta name="description" content="Seed2Scale is a self-evolving data engine with parallel worlds expansion: a self-evolution stage driven by small-model collection, large-model evaluation, and target-model learning, followed by a parallel-worlds stage that projects trajectories into diverse environments — achieving 75.38% zero-shot real-world success where baselines fail completely.">
+  <meta name="keywords" content="Embodied AI, VLA, Vision-Language-Action, Self-Evolving, Data Engine, Parallel Worlds, Sim2Real, SuperTiny, SmolVLA, Robot Learning, ICRA 2027">
   <meta name="author" content="Seed2Scale Research Team">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -580,6 +580,19 @@
    .arch-fig img { width: 100%; display: block; border-bottom: 1px solid var(--border); }
    .arch-fig .fig-caption { background: var(--surface); }
 
+   /* ── Real-world demo gallery ── */
+   .rw-cell {
+     border-radius: 10px; overflow: hidden;
+     border: 1px solid var(--border);
+     box-shadow: var(--shadow-sm); background: #000;
+     transition: var(--trans);
+   }
+   .rw-cell:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+   .rw-cell img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+   .rw-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+   @media (max-width: 860px) { .rw-grid { grid-template-columns: 1fr 1fr; } }
+   @media (max-width: 600px) { .rw-grid { grid-template-columns: 1fr; } }
+
     /* ── PAPER ── */
     .pdf-wrap { margin-top: 2.5rem; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-md); }
     .pdf-wrap iframe { width: 100%; height: 600px; border: none; display: block; }
@@ -677,6 +690,7 @@
     <li><a href="#results">Results</a></li>
     <li><a href="#metrics">Metrics</a></li>
     <li><a href="#demo">Demo</a></li>
+    <li><a href="#sim2real">Sim2Real</a></li>
     <li><a href="#paper">Paper</a></li>
     <li><a href="#bibtex">Cite</a></li>
   </ul>
@@ -690,7 +704,7 @@
 
   <div class="conf-badge">
     <span class="live-dot"></span>
-    Model-base large scale parallel trajectory generation
+    Self-Evolving Data Engine · Parallel Worlds Expansion
   </div>
 
   <h1 class="hero-title">
@@ -698,33 +712,33 @@
   </h1>
 
   <p class="hero-sub">
-    A Self-Evolving Data Engine for Embodied AI via<br>
-    Small-to-Large Model Synergy and Multimodal Evaluation
+    A Self-Evolving Data Engine with Parallel Worlds Expansion<br>
+    for Scalable Robot Learning
   </p>
 
   <div class="authors-block">
     <div class="author-names">
-      Cong Tai<sup>†</sup><span class="author-sep">·</span>Zhaoyu Zheng<sup>†</sup><span class="author-sep">·</span>Haixu Long<sup>†</sup><span class="author-sep">·</span>Hansheng Wu<span class="author-sep">·</span>Zhengbin Long<br>
-      Haodong Xiang<span class="author-sep">·</span>Rong Shi<span class="author-sep">·</span>Zhuo Cui<span class="author-sep">·</span>Shizhuang Zhang<span class="author-sep">·</span>Gang Qiu<br>
-      He Wang<span class="author-sep">·</span>Ruifeng Li<span class="author-sep">·</span>Biao Liu<span class="author-sep">·</span>Zhenzhe Sun<span class="author-sep">·</span>Tao Shen<sup>*</sup>
+      Cong Tai<sup>†</sup><span class="author-sep">·</span>Zhaoyu Zheng<sup>†</sup><span class="author-sep">·</span>Haixu Long<sup>†</sup><span class="author-sep">·</span>Hansheng Wu<sup>†</sup><span class="author-sep">·</span>Jialiang Wang<span class="author-sep">·</span>Zhengbin Long<br>
+      Haodong Xiang<span class="author-sep">·</span>Shuyuan Wang<span class="author-sep">·</span>Rong Shi<span class="author-sep">·</span>Zhuo Cui<span class="author-sep">·</span>Shizhuang Zhang<br>
+      He Wang<span class="author-sep">·</span>Biao Liu<span class="author-sep">·</span>Zhenzhe Sun<span class="author-sep">·</span>Tao Shen<sup>*</sup>
     </div>
     <p style="font-size:0.78rem;color:var(--text-dim);margin-top:0.4rem;">
+      ZTE Corporation, China<br>
       <sup>†</sup>&thinsp;Equal contribution&emsp;<sup>*</sup>&thinsp;Corresponding author
     </p>
   </div>
 
   <div class="hero-abstract">
-    Existing data generation methods suffer from exploration limits, embodiment gaps, and low signal-to-noise ratios,
-    leading to performance degradation during self-iteration. We propose <strong>Seed2Scale</strong>, a self-evolving data engine
-    that breaks the data bottleneck through a heterogeneous synergy of
-    <strong>"small-model collection, large-model evaluation, and target-model learning"</strong>.
-    Starting with as few as <strong>four seed demonstrations</strong>, the engine employs the lightweight VLA model
-    <strong>SuperTiny</strong> for robust parallel exploration, while a frozen <strong>Qwen3-VL-32B</strong> verifier
-    autonomously filters trajectories — achieving a <strong>209.15% performance improvement</strong> with no additional human annotations.
+    Existing data generation methods for robot learning suffer from limited exploration, embodiment gaps, low signal-to-noise ratios, and domain shifts,
+    leading to performance degradation during self-iteration and poor generalization to unseen scenes. We propose <strong>Seed2Scale</strong>, a self-evolving
+    data engine with parallel worlds expansion. Starting with as few as <strong>four seed demonstrations</strong>, Seed2Scale first executes a self-evolution stage
+    driven by a heterogeneous synergy of <strong>"small-model collection, large-model evaluation, and target-model learning"</strong>, then projects self-evolved
+    trajectories into <strong>parallel worlds</strong> for visual generalization — achieving a <strong>75.38% success rate in zero-shot real-world evaluations,
+    where baseline methods fail completely (0%)</strong>.
   </div>
 
   <div class="btn-group">
-    <a href="assets/seed2scale_v2.pdf" target="_blank" class="btn btn-primary">
+    <a href="assets/seed2scale_icra27.pdf" target="_blank" class="btn btn-primary">
       <i class="ai ai-arxiv"></i>&nbsp;Paper PDF
     </a>
     <a href="#video" class="btn btn-outline">
@@ -740,18 +754,18 @@
 
   <div class="hero-stats">
     <div class="stat-item">
-      <div class="stat-value"><span class="counter" data-target="209" data-suffix="%">0%</span></div>
-      <div class="stat-label">Avg. Improvement</div>
+      <div class="stat-value"><span class="counter" data-target="75.38" data-suffix="%">0%</span></div>
+      <div class="stat-label">Zero-Shot Real-World Success</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-value"><span class="counter" data-target="65.34" data-suffix="%">0%</span></div>
+      <div class="stat-label">Unseen-Scene Success (from 0%)</div>
     </div>
     <div class="stat-sep"></div>
     <div class="stat-item">
       <div class="stat-value"><span class="counter" data-target="4" data-suffix="">0</span></div>
       <div class="stat-label">Seed Demos Required</div>
-    </div>
-    <div class="stat-sep"></div>
-    <div class="stat-item">
-      <div class="stat-value"><span class="counter" data-target="68" data-suffix="%">0%</span></div>
-      <div class="stat-label">Final Success Rate</div>
     </div>
     <div class="stat-sep"></div>
     <div class="stat-item">
@@ -775,7 +789,7 @@
       <div>
         <div class="sec-label">01 — Abstract</div>
         <h2 class="sec-title">Breaking the<br>Data Bottleneck</h2>
-        <p class="sec-desc">A self-evolving framework that generates massive, high-quality robot trajectories from minimal human input, via heterogeneous model synergy.</p>
+        <p class="sec-desc">A dual-stage self-evolving framework that generates massive, high-quality robot trajectories from minimal human input — and projects them into parallel worlds for real-world transfer.</p>
 
         <!-- Animated data-flow visualization -->
         <div class="abstract-viz" id="abstract-viz">
@@ -896,19 +910,20 @@
         <p>
           The emergence of Vision-Language-Action (VLA) models is accelerating the evolution of Embodied AI. However,
           the performance of these models remains strictly contingent upon large-scale, high-quality expert demonstration trajectories,
-          creating a critical <span class="hl">"data scarcity" bottleneck</span> that fundamentally obstructs the scaling of Generalist Embodied AI.
+          creating a critical <span class="hl">"data scarcity" bottleneck</span> that fundamentally obstructs the scaling of robot learning.
         </p>
         <p>
-          To address this, we propose <span class="hl">Seed2Scale</span>, a self-evolving data engine based on three synergistic roles:
-          a lightweight <span class="hl">SuperTiny collector</span> (πsmall) for high-throughput parallel exploration,
-          a frozen <span class="hl">Qwen3-VL verifier</span> (ΦVLV) for automated quality scoring,
-          and a target <span class="hl">SmolVLA model</span> (πtarget) trained exclusively on curated high-quality trajectories.
+          To address this, we propose <span class="hl">Seed2Scale</span>, a self-evolving data engine with parallel worlds expansion, operating through a dual-stage pipeline.
+          In the <span class="hl">self-evolution stage</span>, a lightweight <span class="hl">SuperTiny collector</span> (π<sub>small</sub>) enables robust exploration from only 4 seed trajectories,
+          a frozen <span class="hl">Qwen3-VL verifier</span> (Φ<sub>VLV</sub>) autonomously scores and filters trajectories to prevent model collapse,
+          and a <span class="hl">SmolVLA target model</span> (π<sub>target</sub>) learns exclusively from curated trajectories.
+          In the <span class="hl">parallel worlds stage</span>, self-evolved trajectories are projected into diverse environments of the same task, enhancing adaptability to unseen scenes and real-world deployment.
         </p>
         <p>
-          By integrating these heterogeneous components, the engine transforms a sparse set of 4 human demonstrations
-          into a continuous flow of verified training data. Experiments demonstrate a
-          <span class="hl">209.15% average performance improvement</span>, with the Can Stacking task alone achieving
-          <span class="hl">+778.67%</span> relative improvement. Code, data, and model checkpoints will be publicly available.
+          Experiments demonstrate consistent scaling as iterations progress. The self-evolution stage lifts Seen-scene success from
+          <span class="hl">22.18% to 68.57%</span>, while Parallel Worlds raises Unseen-scene success from <span class="hl">0% to 65.34%</span>.
+          Notably, Seed2Scale achieves a <span class="hl">75.38% success rate in zero-shot real-world evaluations</span>, where baseline methods fail completely (0%).
+          Code, datasets, assets, and model weights will be open-sourced.
         </p>
       </div>
     </div>
@@ -922,11 +937,10 @@
   <div class="container">
     <div class="sec-label">02 — Overview Video</div>
     <h2 class="sec-title">Display Video</h2>
-    <p class="sec-desc">A comprehensive demonstration of the Seed2Scale pipeline — from seed data collection to large-scale self-evolution and multi-task policy evaluation.</p>
+    <p class="sec-desc">A comprehensive demonstration of the Seed2Scale pipeline — from seed data collection to self-evolution, parallel worlds expansion, and zero-shot real-world deployment.</p>
     <div class="video-wrap reveal" style="margin-top:2.5rem;">
       <video controls muted loop preload="metadata">
-        <source src="assets/main_video.mp4" type="video/mp4">
-        <source src="assets/main_video.mkv" type="video/x-matroska">
+        <source src="assets/ICRA27_3207_VI_i.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
@@ -940,11 +954,11 @@
   <div class="container-lg">
     <div class="sec-label">03 — Framework</div>
     <h2 class="sec-title">The Seed2Scale Pipeline</h2>
-    <p class="sec-desc">From 4 boundary-point demonstrations to massive high-quality training data — a complete self-evolving ecosystem powering the target VLA model to new performance heights.</p>
+    <p class="sec-desc">From 4 boundary-point demonstrations to massive high-quality training data — a dual-stage self-evolving ecosystem combining self-evolution with parallel worlds expansion.</p>
     <div class="fig-wrap reveal">
-      <img src="assets/img/Frist_main.png" alt="Seed2Scale self-evolving data engine pipeline overview" loading="lazy">
+      <img src="assets/img/pipeline_teaser.png" alt="Seed2Scale self-evolving data engine pipeline overview with parallel worlds projection" loading="lazy">
       <div class="fig-caption">
-        Fig. 1 — The Seed2Scale self-evolving data engine. Starting with as few as four human demonstrations, SuperTiny performs large-scale parallel rollouts. Qwen3-VL acts as a Verifier, scoring and filtering raw trajectories. The curated D<sub>silver</sub> dataset trains SmolVLA through deep iterative learning — achieving robust scaling without massive manual annotations.
+        Fig. 1 — The Seed2Scale self-evolving data engine. Starting with as few as four human demonstrations, the framework utilizes a lightweight SuperTiny VLA model for large-scale parallel data collection. A pretrained Vision-Language Model acts as a Verifier, autonomously scoring and filtering the raw trajectories to prevent model collapse. A parallel-world projection mechanism then achieves visual generalization on top of the position generalization accomplished through self-evolution, yielding large-scale, high-quality, and diverse datasets for model training.
       </div>
     </div>
   </div>
@@ -956,32 +970,38 @@
 <section id="method" class="s-gray">
   <div class="container">
     <div class="sec-label">04 — Methodology</div>
-    <h2 class="sec-title">Heterogeneous Model Synergy</h2>
-    <p class="sec-desc">Three specialized roles working in concert, each exploiting distinct scale asymmetries to achieve what no single model can accomplish alone.</p>
+    <h2 class="sec-title">Heterogeneous Synergy + Parallel Worlds</h2>
+    <p class="sec-desc">Three specialized model roles and one trajectory-level augmentation stage, each exploiting distinct scale asymmetries to achieve what no single model can accomplish alone.</p>
 
-    <div class="method-grid">
+    <div class="method-grid" style="grid-template-columns:repeat(2,1fr);">
       <div class="method-card mc-blue reveal">
         <div class="mc-icon ic-blue"><i class="fas fa-bolt"></i></div>
         <h3>SuperTiny Collector</h3>
-        <p>A lightweight 48M-parameter VLA model with ResNet-18 vision, T5-Small language encoder, and a Transformer decoder with temporal ensembling. Achieves 26.3 Hz inference — 3.6× faster than Diffusion Policy. Bootstraps robustly from just 4 seed trajectories without overfitting.</p>
+        <p>A lightweight 48M-parameter VLA model: a ResNet-18 vision encoder, frozen T5-Small language encoder, and a compact MLP state embedding are unified into a conditioning memory, processed by a query-based Transformer decoder with action chunking (K=30) and temporal ensembling. Achieves 26.3 Hz inference — 3.6× faster than Diffusion Policy — and bootstraps robustly from just 4 seed trajectories.</p>
         <span class="mc-tag tag-blue">π<sub>small</sub> · 48M params · 26.3 Hz</span>
       </div>
       <div class="method-card mc-purple reveal rv1">
         <div class="mc-icon ic-purple"><i class="fas fa-shield-halved"></i></div>
         <h3>VLM-as-a-Verifier</h3>
-        <p>Frozen Qwen3-VL-32B serves as the Vision-Language Verifier (VLV). For each trajectory τ, it receives task instruction, rollout video, and a reference demo, outputting a quality score S<sub>τ</sub> ∈ [0, 10]. Only trajectories with S<sub>τ</sub> ≥ γ enter D<sub>silver</sub>, preventing data-poisoning spirals.</p>
+        <p>A two-stage verification pipeline: a rule-based success gate filters failed trajectories by design, then a frozen Qwen3-VL-32B serves as the Vision-Language Verifier (VLV), scoring execution quality from the task instruction, rollout video, and a reference demo. Only trajectories with S<sub>τ</sub> ≥ γ enter D<sub>silver</sub>, preventing data-poisoning spirals.</p>
         <span class="mc-tag tag-purple">Φ<sub>VLV</sub> · Qwen3-VL-32B · Frozen</span>
       </div>
       <div class="method-card mc-green reveal rv2">
-        <div class="mc-icon ic-green"><i class="fas fa-brain"></i></div>
+        <div class="mc-icon ic-green"><i class="fas fa-globe"></i></div>
+        <h3>Parallel Worlds</h3>
+        <p>A trajectory-conditioned stage that projects self-evolved trajectories into diverse target worlds of the same task — with task-relevant objects at source-aligned poses but varied assets, backgrounds, and cameras. Feasibility checks (workspace, kinematics, collision, contact, smoothness) precede re-collection, and VLV-filtered rollouts augment the final dataset.</p>
+        <span class="mc-tag tag-green">Trajectory projection · 10 worlds · 3DGS</span>
+      </div>
+      <div class="method-card mc-purple reveal rv3">
+        <div class="mc-icon ic-purple"><i class="fas fa-brain"></i></div>
         <h3>SmolVLA Target Model</h3>
-        <p>The final policy (π<sub>target</sub>) trained via Conditional Flow Matching on curated D<sub>silver</sub>. Its Action Expert architecture interleaves Cross-Attention (CA) over vision-language context with Self-Attention (SA) for temporal coherence — enabling stable closed-loop deployment on Agibot A2 and GR-1 robots.</p>
-        <span class="mc-tag tag-green">π<sub>target</sub> · 450M params · Flow Matching</span>
+        <p>The final policy (π<sub>target</sub>) trained via Conditional Flow Matching on the curated dataset D<sub>final</sub>. Its Action Expert architecture interleaves Cross-Attention (CA) over vision-language context with Self-Attention (SA) for temporal coherence — enabling stable closed-loop deployment on Agibot A2 and GR-1 robots.</p>
+        <span class="mc-tag tag-purple">π<sub>target</sub> · 450M params · Flow Matching</span>
       </div>
     </div>
 
     <div class="flow-wrap reveal" style="margin-top:2.5rem;">
-      <div class="flow-label">Self-Evolution Loop</div>
+      <div class="flow-label">Dual-Stage Pipeline: Self-Evolution → Parallel Worlds</div>
       <div class="flow-row">
         <div class="flow-step">
           <div class="flow-node fn-blue"><i class="fas fa-user"></i></div>
@@ -997,8 +1017,8 @@
         <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
         <div class="flow-step">
           <div class="flow-node fn-purple"><i class="fas fa-filter"></i></div>
-          <h4>VLV Filter</h4>
-          <p>Score S ≥ γ threshold</p>
+          <h4>Gate + VLV</h4>
+          <p>Rule gate + score S ≥ γ</p>
         </div>
         <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
         <div class="flow-step">
@@ -1006,21 +1026,21 @@
           <h4>D<sub>silver</sub></h4>
           <p>Curated trajectories</p>
         </div>
-        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
-        <div class="flow-step">
-          <div class="flow-node fn-green"><i class="fas fa-brain"></i></div>
-          <h4>SmolVLA</h4>
-          <p>Target model training</p>
-        </div>
-        <div class="flow-loop" title="Iterative improvement">
+        <div class="flow-loop" title="Iterative self-evolution">
           <i class="fas fa-rotate"></i>
         </div>
         <div class="flow-step">
+          <div class="flow-node fn-purple"><i class="fas fa-globe"></i></div>
+          <h4>Parallel Worlds</h4>
+          <p>Project τ into M target worlds</p>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="flow-step">
           <div class="flow-node" style="border-color:var(--accent2);background:var(--accent2-lt);color:var(--accent2)">
-            <i class="fas fa-chart-line"></i>
+            <i class="fas fa-brain"></i>
           </div>
-          <h4>Next Iteration</h4>
-          <p>D<sup>(i+1)</sup> = D<sup>(i)</sup> ∪ D<sub>silver</sub></p>
+          <h4>D<sub>final</sub> → SmolVLA</h4>
+          <p>Target model training</p>
         </div>
       </div>
     </div>
@@ -1034,51 +1054,51 @@
   <div class="container-lg">
     <div class="sec-label">05 — Qualitative Results</div>
     <h2 class="sec-title">Task Demonstrations</h2>
-    <p class="sec-desc">Direct comparison between the 4-point-only baseline and Seed2Scale-augmented policy across representative manipulation tasks.</p>
+    <p class="sec-desc">Direct comparison between the SeedOnly baseline and the Seed2Scale* policy (self-evolution) across representative manipulation tasks.</p>
 
     <div class="demo-grid">
       <div class="demo-card reveal">
         <div class="demo-card-head">
           <span class="demo-task-name">Kitchen Cleanup · Task 1</span>
-          <span class="badge badge-fail">BASELINE</span>
-          <span class="badge badge-pass" style="margin-left:.25rem">SEED2SCALE</span>
+          <span class="badge badge-fail">SEEDONLY</span>
+          <span class="badge badge-pass" style="margin-left:.25rem">SEED2SCALE*</span>
         </div>
         <div class="gif-row">
           <div class="gif-col">
-            <img src="assets/gif1/task1_bad_case(4_point_only).gif" alt="Task 1 baseline failure" loading="lazy">
-            <div class="gif-lbl lbl-bad">4-Point Baseline</div>
+            <img src="assets/gif1/task1_bad_case(4_point_only).gif" alt="Task 1 SeedOnly baseline failure" loading="lazy">
+            <div class="gif-lbl lbl-bad">SeedOnly (4 demos)</div>
           </div>
           <div class="gif-sep"></div>
           <div class="gif-col">
             <img src="assets/gif1/task1_good_case(seed2scale).gif" alt="Task 1 Seed2Scale success" loading="lazy">
-            <div class="gif-lbl lbl-good">Seed2Scale (Ours)</div>
+            <div class="gif-lbl lbl-good">Seed2Scale* (Ours)</div>
           </div>
         </div>
       </div>
       <div class="demo-card reveal rv1">
         <div class="demo-card-head">
           <span class="demo-task-name">Can Stacking · Task 4</span>
-          <span class="badge badge-fail">BASELINE</span>
-          <span class="badge badge-pass" style="margin-left:.25rem">SEED2SCALE</span>
+          <span class="badge badge-fail">SEEDONLY</span>
+          <span class="badge badge-pass" style="margin-left:.25rem">SEED2SCALE*</span>
         </div>
         <div class="gif-row">
           <div class="gif-col">
-            <img src="assets/gif1/task4_bad_case(4_point_only).gif" alt="Task 4 baseline failure" loading="lazy">
-            <div class="gif-lbl lbl-bad">4-Point Baseline</div>
+            <img src="assets/gif1/task4_bad_case(4_point_only).gif" alt="Task 4 SeedOnly baseline failure" loading="lazy">
+            <div class="gif-lbl lbl-bad">SeedOnly (4 demos)</div>
           </div>
           <div class="gif-sep"></div>
           <div class="gif-col">
             <img src="assets/gif1/task4_good_case(seed2scale).gif" alt="Task 4 Seed2Scale success" loading="lazy">
-            <div class="gif-lbl lbl-good">Seed2Scale (Ours)</div>
+            <div class="gif-lbl lbl-good">Seed2Scale* (Ours)</div>
           </div>
         </div>
       </div>
     </div>
 
     <div style="margin-top:3.5rem;">
-      <div class="sec-label" style="margin-bottom:.7rem;">Seed2Scale vs. MimicGen on GR-1 Tasks</div>
+      <div class="sec-label" style="margin-bottom:.7rem;">Seed2Scale* vs. MimicGen on GR-1 Tasks</div>
       <h3 class="sec-title" style="font-size:1.45rem;">Smoother Motion, Higher Success</h3>
-      <p class="sec-desc">Seed2Scale produces physically plausible, smooth trajectories. MimicGen's IK-based approach introduces severe high-frequency instability, yielding kinematically infeasible motions..</p>
+      <p class="sec-desc">Self-evolved trajectories are physically plausible and smooth. MimicGen's IK-based approach introduces severe high-frequency instability, yielding kinematically infeasible motions.</p>
       <div class="compare-grid">
         <div class="cmp-card reveal">
           <div class="cmp-head"><span>Wheel Manipulation</span><span class="badge badge-fail">MimicGen</span></div>
@@ -1086,9 +1106,9 @@
           <div class="cmp-foot">Policy: 34.75% · Replay: 48.50%</div>
         </div>
         <div class="cmp-card reveal rv1">
-          <div class="cmp-head"><span>Wheel Manipulation</span><span class="badge badge-pass">Seed2Scale</span></div>
+          <div class="cmp-head"><span>Wheel Manipulation</span><span class="badge badge-pass">Seed2Scale*</span></div>
           <img src="assets/gif2/seed2scale_wheel.gif" alt="Seed2Scale Wheel" loading="lazy">
-          <div class="cmp-foot">Policy: 93.25% ↑+168% · Replay: 67.86%</div>
+          <div class="cmp-foot">Policy: 93.25% (+58.50) · Replay: 67.86%</div>
         </div>
         <div class="cmp-card reveal rv2">
           <div class="cmp-head"><span>Cylinder Grasping</span><span class="badge badge-fail">MimicGen</span></div>
@@ -1096,9 +1116,9 @@
           <div class="cmp-foot">Policy: 37.25% · Replay: 21.00%</div>
         </div>
         <div class="cmp-card reveal rv3">
-          <div class="cmp-head"><span>Cylinder Grasping</span><span class="badge badge-pass">Seed2Scale</span></div>
+          <div class="cmp-head"><span>Cylinder Grasping</span><span class="badge badge-pass">Seed2Scale*</span></div>
           <img src="assets/gif2/seed2scale_gunzi.gif" alt="Seed2Scale Cylinder" loading="lazy">
-          <div class="cmp-foot">Policy: 66.00% ↑+77% · Replay: 86.96% ↑4×</div>
+          <div class="cmp-foot">Policy: 66.00% (+28.75) · Replay: 86.96% (4.1×)</div>
         </div>
       </div>
     </div>
@@ -1112,18 +1132,18 @@
   <div class="container">
     <div class="sec-label">06 — Quantitative Results</div>
     <h2 class="sec-title">Performance Metrics</h2>
-    <p class="sec-desc">Comprehensive evaluation across multiple tasks demonstrating consistent, large-scale improvements with only 4 seed demonstrations.</p>
+    <p class="sec-desc">Comprehensive evaluation across simulation and real-world tasks, demonstrating consistent scaling with only 4 seed demonstrations and zero-shot transfer to unseen scenes.</p>
 
     <div class="metric-grid">
       <div class="metric-card reveal">
-        <div class="metric-num mn-blue">+<span class="counter" data-target="209" data-suffix="%">0%</span></div>
-        <div class="metric-desc">Average relative improvement across all tasks</div>
-        <div class="metric-sub">22.18% → 68.57%</div>
+        <div class="metric-num mn-blue"><span class="counter" data-target="75.38" data-suffix="%">0%</span></div>
+        <div class="metric-desc">Zero-shot real-world success (baselines fail completely)</div>
+        <div class="metric-sub">0.00% → 75.38% · Pick-and-Place</div>
       </div>
       <div class="metric-card reveal rv1">
-        <div class="metric-num mn-green">+<span class="counter" data-target="778" data-suffix="%">0%</span></div>
-        <div class="metric-desc">Best single-task improvement (Can Stacking)</div>
-        <div class="metric-sub">7.50% → 65.90%</div>
+        <div class="metric-num mn-green"><span class="counter" data-target="65.34" data-suffix="%">0%</span></div>
+        <div class="metric-desc">Average success on unseen scenes via Parallel Worlds</div>
+        <div class="metric-sub">0.00% → 65.34% · 3 unseen worlds</div>
       </div>
       <div class="metric-card reveal rv2">
         <div class="metric-num mn-purple"><span class="counter" data-target="4" data-suffix="×">0</span></div>
@@ -1138,34 +1158,51 @@
     </div>
 
     <div style="margin-top:3rem;" class="reveal">
-      <h3 class="sec-title" style="font-size:1.3rem;margin-bottom:.4rem;">Agibot A2 Task Performance</h3>
-      <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1rem;">Multi-task joint training · 4 seed demos per task · H20 training / RTX 5090 inference</p>
+      <h3 class="sec-title" style="font-size:1.3rem;margin-bottom:.4rem;">Agibot A2: Seen vs. Unseen Scene Generalization</h3>
+      <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1rem;">Multi-task joint training · 4 seed demos per task · 396 independent trials · Seen = 10 parallel worlds (data generation) · Unseen = 3 disjoint worlds (evaluation only)</p>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Task</th><th>Seed Only</th><th>Seed2Scale (Ours)</th><th>Improvement</th></tr></thead>
+          <thead>
+            <tr>
+              <th rowspan="2">Task</th>
+              <th colspan="3" style="text-align:center;border-left:1px solid var(--border-md)">Evaluated on Seen Scenes</th>
+              <th colspan="3" style="text-align:center;border-left:1px solid var(--border-md)">Evaluated on Unseen Scenes</th>
+            </tr>
+            <tr>
+              <th style="border-left:1px solid var(--border-md)">SeedOnly</th>
+              <th>Seed2Scale*</th>
+              <th>Seed2Scale</th>
+              <th style="border-left:1px solid var(--border-md)">SeedOnly</th>
+              <th>Seed2Scale*</th>
+              <th>Seed2Scale</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td class="td-name">Kitchen Cleanup</td><td>24.63%</td><td class="td-good">71.43%</td><td class="td-great">+190.01%</td></tr>
-            <tr><td class="td-name">Cup-to-Cup Transfer</td><td>23.50%</td><td class="td-good">64.14%</td><td class="td-great">+172.94%</td></tr>
-            <tr><td class="td-name">Can Stacking</td><td>7.50%</td><td class="td-good">65.90%</td><td class="td-great">+778.67%</td></tr>
-            <tr><td class="td-name">Air Fryer Manipulation</td><td>33.08%</td><td class="td-good">72.82%</td><td class="td-great">+120.13%</td></tr>
-            <tr class="td-avg"><td class="td-name">Average</td><td>22.18%</td><td class="td-good">68.57%</td><td class="td-great">+209.15%</td></tr>
+            <tr><td class="td-name">Kitchen Cleanup</td><td>24.63%</td><td class="td-good">71.43%</td><td class="td-good">68.50%</td><td>0.00%</td><td>0.00%</td><td class="td-great">75.51%</td></tr>
+            <tr><td class="td-name">Cup-to-Cup Transfer</td><td>23.50%</td><td class="td-good">64.14%</td><td class="td-good">60.61%</td><td>0.00%</td><td>0.00%</td><td class="td-great">61.62%</td></tr>
+            <tr><td class="td-name">Can Stacking</td><td>7.50%</td><td class="td-good">65.90%</td><td class="td-great">67.70%</td><td>0.00%</td><td>0.00%</td><td class="td-great">69.19%</td></tr>
+            <tr><td class="td-name">Air Fryer Manipulation</td><td>33.08%</td><td class="td-great">72.82%</td><td class="td-good">71.21%</td><td>0.00%</td><td>0.00%</td><td class="td-great">55.05%</td></tr>
+            <tr class="td-avg"><td class="td-name">Average</td><td>22.18%</td><td class="td-good">68.57%</td><td>67.01%</td><td>0.00%</td><td>0.00%</td><td class="td-great">65.34%</td></tr>
           </tbody>
         </table>
       </div>
+      <p style="font-size:.8rem;color:var(--text-dim);margin-top:.7rem;">
+        Seed2Scale* = self-evolution only (spatial generalization in the source world); Seed2Scale = full engine with Parallel Worlds (visual generalization). Both SeedOnly and Seed2Scale* score 0% on unseen scenes — scene diversity, not additional action supervision, is what unlocks generalization.
+      </p>
     </div>
 
     <div style="margin-top:2.2rem;" class="reveal">
-      <h3 class="sec-title" style="font-size:1.3rem;margin-bottom:.4rem;">GR-1 Tasks: Seed2Scale vs. MimicGen</h3>
+      <h3 class="sec-title" style="font-size:1.3rem;margin-bottom:.4rem;">GR-1 Tasks: Seed2Scale* vs. MimicGen</h3>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Metric</th><th>Task</th><th>MimicGen</th><th>Seed2Scale</th><th>Δ</th></tr></thead>
+          <thead><tr><th>Metric</th><th>Task</th><th>MimicGen</th><th>Seed2Scale*</th></tr></thead>
           <tbody>
-            <tr><td class="td-name" rowspan="3" style="border-right:1px solid var(--border)">Policy Success</td><td class="td-name">Cylinder Grasping</td><td class="td-bad">37.25%</td><td class="td-good">66.00%</td><td class="td-great">+77.18%</td></tr>
-            <tr><td class="td-name">Wheel Manipulation</td><td class="td-bad">34.75%</td><td class="td-good">93.25%</td><td class="td-great">+168.35%</td></tr>
-            <tr class="td-avg"><td class="td-name">Average</td><td>36.00%</td><td class="td-good">79.63%</td><td class="td-great">+121.19%</td></tr>
-            <tr><td class="td-name" rowspan="3" style="border-right:1px solid var(--border)">Replay Success</td><td class="td-name">Cylinder Grasping</td><td class="td-bad">21.00%</td><td class="td-good">86.96%</td><td class="td-great">+4.1×</td></tr>
-            <tr><td class="td-name">Wheel Manipulation</td><td class="td-bad">48.50%</td><td class="td-good">67.86%</td><td class="td-great">+39.92%</td></tr>
-            <tr class="td-avg"><td class="td-name">Average</td><td>34.75%</td><td class="td-good">77.41%</td><td class="td-great">+122.77%</td></tr>
+            <tr><td class="td-name" rowspan="3" style="border-right:1px solid var(--border)">Policy Success</td><td class="td-name">Cylinder Grasping</td><td class="td-bad">37.25%</td><td class="td-good">66.00%</td></tr>
+            <tr><td class="td-name">Wheel Manipulation</td><td class="td-bad">34.75%</td><td class="td-good">93.25%</td></tr>
+            <tr class="td-avg"><td class="td-name">Average</td><td>36.00%</td><td class="td-good">79.63%</td></tr>
+            <tr><td class="td-name" rowspan="3" style="border-right:1px solid var(--border)">Replay Success</td><td class="td-name">Cylinder Grasping</td><td class="td-bad">21.00%</td><td class="td-good">86.96%</td></tr>
+            <tr><td class="td-name">Wheel Manipulation</td><td class="td-bad">48.50%</td><td class="td-good">67.86%</td></tr>
+            <tr class="td-avg"><td class="td-name">Average</td><td>34.75%</td><td class="td-good">77.41%</td></tr>
           </tbody>
         </table>
       </div>
@@ -1175,7 +1212,7 @@
       <h3 class="sec-title" style="font-size:1.3rem;margin-bottom:.4rem;">Trajectory Quality (lower = better)</h3>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Metric</th><th>Expert Demo</th><th>MimicGen</th><th>Seed2Scale</th></tr></thead>
+          <thead><tr><th>Metric</th><th>Expert Demo</th><th>MimicGen</th><th>Seed2Scale*</th></tr></thead>
           <tbody>
             <tr><td class="td-name">Total Variation ↓</td><td>1.32</td><td class="td-bad">3.68</td><td class="td-good">1.34</td></tr>
             <tr><td class="td-name">Mean Abs. Jerk ↓</td><td>0.0063</td><td class="td-bad">0.0261</td><td class="td-good">0.0047</td></tr>
@@ -1186,22 +1223,23 @@
 
       <div class="fig-pair" style="margin-top:1.6rem;">
         <div class="fig-block reveal">
-          <img src="assets/extra_img/motor_curve_compare.png"
-               alt="Motor joint position curves comparing Expert Demonstration, MimicGen and Seed2Scale across 4 joints"
+          <img src="assets/extra_img/motor_curve.png"
+               alt="Motor joint action curves comparing Expert Demonstration, MimicGen and Seed2Scale"
                loading="lazy">
           <div class="fig-caption">
-            <strong>Fig. — Joint Motor Curve Comparison.</strong>
-            Position trajectories (rad) for four representative joints over a full manipulation episode.
-            Seed2Scale (orange dashed) closely tracks the Expert Demonstration (green dotted) in both amplitude and phase, while MimicGen (blue solid) diverges significantly — reflecting its higher Total Variation and Jerk scores in the table.
+            <strong>Fig. — Action Curve Comparison.</strong>
+            Robot action curves generated by expert demonstration, MimicGen, and Seed2Scale*.
+            Seed2Scale* closely tracks the Expert Demonstration in both amplitude and phase, while MimicGen diverges with severe high-frequency jitter — reflecting its higher Total Variation and Jerk scores in the table.
           </div>
         </div>
         <div class="fig-block reveal rv1">
           <img src="assets/extra_img/collector_comparison.png"
-               alt="Ablation: Success Rate of SuperTiny vs SuperTiny-minus, Diffusion Policy and ACT across 7 self-evolution iterations"
+               alt="Ablation: Success Rate of SuperTiny, SuperTiny-minus, ACT and Diffusion Policy across self-evolution iterations"
                loading="lazy">
           <div class="fig-caption">
-            <strong>Fig. — Collector Ablation: Success Rate over Self-Evolution Iterations.</strong>
-            SuperTiny (full model) consistently outperforms its ablated variant SuperTiny⁻ (without key components), Diffusion Policy, and ACT across all 7 iterations — plateauing near 50% while alternatives remain below 40% — confirming the critical role of SuperTiny's design choices in driving self-evolution.
+            <strong>Fig. — Collector Comparison over Self-Evolution Iterations.</strong>
+            SuperTiny (full model) converges faster and reaches the highest final success rate compared with its ablated variant SuperTiny⁻ (without VLV-based quality filtering), ACT, and Diffusion Policy.
+            The gap to SuperTiny⁻ confirms that enforcing high trajectory quality — not just task completion — is essential for robust policy learning.
           </div>
         </div>
       </div>
@@ -1209,56 +1247,13 @@
 
     <div class="chart-grid">
       <div class="chart-card reveal">
-        <div class="chart-title">Scaling: Target Model vs. Self-Evolution Iteration</div>
-        <div class="chart-sub">Can Stacking — SmolVLA success rate across 8 iterations</div>
-        <svg class="chart-svg" viewBox="0 0 340 180" xmlns="http://www.w3.org/2000/svg">
-          <line x1="36" y1="10" x2="36" y2="155" stroke="#e5e7eb" stroke-width="1"/>
-          <line x1="36" y1="155" x2="330" y2="155" stroke="#e5e7eb" stroke-width="1"/>
-          <line x1="36" y1="120" x2="330" y2="120" stroke="#e5e7eb" stroke-width=".8" stroke-dasharray="4 3"/>
-          <line x1="36" y1="85"  x2="330" y2="85"  stroke="#e5e7eb" stroke-width=".8" stroke-dasharray="4 3"/>
-          <line x1="36" y1="50"  x2="330" y2="50"  stroke="#e5e7eb" stroke-width=".8" stroke-dasharray="4 3"/>
-          <text x="28" y="158" fill="#9ca3af" font-size="7.5" text-anchor="end">0%</text>
-          <text x="28" y="123" fill="#9ca3af" font-size="7.5" text-anchor="end">20%</text>
-          <text x="28" y="88"  fill="#9ca3af" font-size="7.5" text-anchor="end">40%</text>
-          <text x="28" y="53"  fill="#9ca3af" font-size="7.5" text-anchor="end">60%</text>
-          <defs>
-            <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#2563eb"/>
-              <stop offset="100%" stop-color="#0ea5e9"/>
-            </linearGradient>
-            <linearGradient id="area1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#2563eb" stop-opacity=".12"/>
-              <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <polygon points="36,145 72,140 108,130 144,118 180,102 216,90 252,79 288,70 324,60 324,155 36,155" fill="url(#area1)"/>
-          <polyline points="36,145 72,140 108,130 144,118 180,102 216,90 252,79 288,70 324,60"
-            fill="none" stroke="url(#lg1)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-          <circle cx="36"  cy="145" r="3.5" fill="#2563eb"/>
-          <circle cx="72"  cy="140" r="3.5" fill="#2563eb"/>
-          <circle cx="108" cy="130" r="3.5" fill="#2563eb"/>
-          <circle cx="144" cy="118" r="3.5" fill="#2563eb"/>
-          <circle cx="180" cy="102" r="3.5" fill="#2563eb"/>
-          <circle cx="216" cy="90"  r="3.5" fill="#0ea5e9"/>
-          <circle cx="252" cy="79"  r="3.5" fill="#0ea5e9"/>
-          <circle cx="288" cy="70"  r="3.5" fill="#0ea5e9"/>
-          <circle cx="324" cy="60"  r="3.5" fill="#0ea5e9"/>
-          <text x="36"  y="168" fill="#9ca3af" font-size="7" text-anchor="middle">0</text>
-          <text x="72"  y="168" fill="#9ca3af" font-size="7" text-anchor="middle">1</text>
-          <text x="108" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">2</text>
-          <text x="144" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">3</text>
-          <text x="180" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">4</text>
-          <text x="216" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">5</text>
-          <text x="252" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">6</text>
-          <text x="288" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">7</text>
-          <text x="324" y="168" fill="#9ca3af" font-size="7" text-anchor="middle">8</text>
-          <text x="183" y="179" fill="#6b7280" font-size="7.5" text-anchor="middle">Self-Evolution Iteration →</text>
-          <text x="329" y="56" fill="#059669" font-size="7.5" text-anchor="end">~50%+</text>
-        </svg>
+        <div class="chart-title">Scaling: Target Model (SmolVLA) vs. Self-Evolution Iteration</div>
+        <div class="chart-sub">Can Stacking — single-task SmolVLA checkpoints across 8 iterations</div>
+        <img src="assets/extra_img/scaling_curve.png" alt="Target model (SmolVLA) success rate across 8 self-evolution iterations on Can Stacking" style="width:100%;display:block" loading="lazy">
       </div>
       <div class="chart-card reveal rv1">
-        <div class="chart-title">Success Rate — Seed Only vs. Seed2Scale</div>
-        <div class="chart-sub">Per-task comparison on Agibot A2</div>
+        <div class="chart-title">Success Rate — SeedOnly vs. Seed2Scale*</div>
+        <div class="chart-sub">Per-task comparison on Agibot A2 — Seen scenes</div>
         <div class="bar-list" id="bar-list">
           <div class="bar-item">
             <div class="bar-header"><span class="bar-lbl">Kitchen Cleanup</span></div>
@@ -1290,8 +1285,8 @@
           </div>
         </div>
         <div style="display:flex;gap:1rem;margin-top:.9rem;font-size:.7rem;color:var(--text-muted)">
-          <span><span style="display:inline-block;width:10px;height:4px;background:#fca5a5;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Seed Only</span>
-          <span><span style="display:inline-block;width:10px;height:4px;background:var(--primary);border-radius:2px;vertical-align:middle;margin-right:4px"></span>Seed2Scale</span>
+          <span><span style="display:inline-block;width:10px;height:4px;background:#fca5a5;border-radius:2px;vertical-align:middle;margin-right:4px"></span>SeedOnly</span>
+          <span><span style="display:inline-block;width:10px;height:4px;background:var(--primary);border-radius:2px;vertical-align:middle;margin-right:4px"></span>Seed2Scale* (Seen)</span>
         </div>
       </div>
     </div>
@@ -1334,13 +1329,35 @@
         <ul class="spec-rows">
           <li><span class="sk">Base Model</span><span class="sv sv-hl">Qwen3-VL-32B</span></li>
           <li><span class="sk">Mode</span><span class="sv">Frozen (no fine-tuning)</span></li>
+          <li><span class="sk">Stage 1</span><span class="sv">Rule-based Success Gate</span></li>
+          <li><span class="sk">Stage 2</span><span class="sv">VLM Quality Scoring</span></li>
           <li><span class="sk">Input 1</span><span class="sv">Task instruction g</span></li>
           <li><span class="sk">Input 2</span><span class="sv">Rollout video V<sub>τ</sub></span></li>
           <li><span class="sk">Input 3</span><span class="sv">Reference video V<sub>ref</sub></span></li>
           <li><span class="sk">Output Score</span><span class="sv sv-hl">S<sub>τ</sub> ∈ [0, 10]</span></li>
-          <li><span class="sk">Role</span><span class="sv">Success/Fail + Quality</span></li>
-          <li><span class="sk">Threshold γ</span><span class="sv">Configurable per task</span></li>
+          <li><span class="sk">Threshold γ</span><span class="sv">Fixed a priori (rubric)</span></li>
         </ul>
+      </div>
+      <div class="spec-card reveal rv2" style="grid-column: 1 / -1;">
+        <div class="spec-head">
+          <div class="spec-icon ic-green"><i class="fas fa-globe"></i></div>
+          <div><h3>Parallel Worlds</h3><div style="font-size:.73rem;color:var(--text-muted)">Trajectory-Conditioned Visual Generalization → D<sub>final</sub></div></div>
+          <span class="spec-badge tag-green">10 Worlds</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr">
+          <ul class="spec-rows" style="border-right:1px solid rgba(0,0,0,.05)">
+            <li><span class="sk">Worlds (A2 suite)</span><span class="sv sv-hl">10 scenes · some 3DGS</span></li>
+            <li><span class="sk">Seen / Unseen</span><span class="sv">10 data · 3 eval-only</span></li>
+            <li><span class="sk">World Spec. C<sub>m</sub></span><span class="sv">Assets · poses · background · cameras</span></li>
+            <li><span class="sk">Object Poses</span><span class="sv">Source-aligned across worlds</span></li>
+          </ul>
+          <ul class="spec-rows">
+            <li><span class="sk">Projection M<sub>m</sub>(τ<sub>F</sub>)</span><span class="sv">Control trajectory re-targeting</span></li>
+            <li><span class="sk">Feasibility Check</span><span class="sv">Kinematics · collision · contact</span></li>
+            <li><span class="sk">Quality Filter</span><span class="sv">VLV re-scoring after rollout</span></li>
+            <li><span class="sk">Real-World Setup</span><span class="sv sv-hl">7 sim scenes → real scene</span></li>
+          </ul>
+        </div>
       </div>
       <div class="spec-card reveal rv2" style="grid-column: 1 / -1;">
         <div class="spec-head">
@@ -1358,7 +1375,7 @@
           <ul class="spec-rows">
             <li><span class="sk">Training Steps</span><span class="sv sv-hl">100,000</span></li>
             <li><span class="sk">Action Arch.</span><span class="sv">CA + SA Action Expert</span></li>
-            <li><span class="sk">Training Data</span><span class="sv">D<sub>silver</sub> (curated)</span></li>
+            <li><span class="sk">Training Data</span><span class="sv">D<sub>final</sub> (curated)</span></li>
             <li><span class="sk">Deployment</span><span class="sv">Agibot A2 / GR-1</span></li>
           </ul>
         </div>
@@ -1366,13 +1383,13 @@
     </div>
 
     <div class="arch-fig reveal" style="margin-top:2.8rem;">
-      <img src="assets/extra_img/supertiny_model.png"
-           alt="SuperTiny VLA Architecture: Vision-State-Language Encoder, Multimodal Decoder, and Action Head with Temporal Ensembling"
+      <img src="assets/extra_img/supertiny_arch.png"
+           alt="SuperTiny VLA Architecture: Vision-Language-State encoding, conditioning memory, Transformer decoder with cross-attention, and Action Head with Temporal Ensembling"
            loading="lazy">
       <div class="fig-caption">
         <strong>Fig. — SuperTiny VLA Architecture.</strong>
-        Three camera inputs are encoded by a shared ResNet backbone into 192 visual tokens; robot joint states pass through a State MLP into state tokens; and task instructions are embedded via a frozen T5 encoder into language tokens.
-        All three token streams are fused in a <em>Multimodal Decoder</em> (N layers of Self-Attention → Cross-Attention → FFN), producing a 30×128 action sequence refined by an <em>Action Head</em> with Temporal Ensembling (λ) for smooth 26.3 Hz closed-loop control.
+        The model integrates vision (ResNet-18), language (T5-Small), and robot state encodings into a unified conditioning memory M<sub>t</sub>, which is processed by a lightweight Transformer decoder via cross-attention from learnable query embeddings to predict action chunks.
+        Temporal ensembling ensures smooth and consistent control at 26.3 Hz.
       </div>
     </div>
   </div>
@@ -1381,7 +1398,7 @@
   <div class="container-lg">
     <div class="sec-label">08 — Multi-Task Demo</div>
     <h2 class="sec-title">Four-Task Generalization</h2>
-    <p class="sec-desc">Multi-task joint training with cross-task knowledge transfer consistently achieves higher success rates than single-task training. The target model generalizes across diverse manipulation scenarios on the Agibot A2 robot platform.</p>
+    <p class="sec-desc">Multi-task joint training with cross-task knowledge transfer consistently outperforms single-task training. Evaluated on Seen scenes (10 parallel worlds) and Unseen scenes (3 disjoint worlds) on the Agibot A2 platform.</p>
 
     <div class="four-gif-wrap reveal">
       <div class="four-gif">
@@ -1393,26 +1410,120 @@
       <div class="method-card mc-blue reveal">
         <div class="mc-icon ic-blue"><i class="fas fa-hand-sparkles"></i></div>
         <h3>Kitchen Cleanup</h3>
-        <p>Pick up chip from the table, then place it into the basket. Tests precise grasping and placement from arbitrary positions beyond the 4 seed locations.</p>
-        <span class="mc-tag tag-blue">Success Rate: 71.43%</span>
+        <p>Pick up the chip from the table, then place it into the basket. Tests precise grasping and placement from arbitrary positions beyond the 4 seed locations.</p>
+        <span class="mc-tag tag-blue">Seen: 68.50% · Unseen: 75.51%</span>
       </div>
       <div class="method-card mc-purple reveal rv1">
         <div class="mc-icon ic-purple"><i class="fas fa-arrows-left-right"></i></div>
         <h3>Cup-to-Cup Transfer</h3>
-        <p>Pour berries from the right cup into the left cup. Requires fine motor control and understanding of granular transfer dynamics with non-uniform objects.</p>
-        <span class="mc-tag tag-purple">Success Rate: 64.14%</span>
+        <p>Pour berries from the cup on the right into the cup on the left. Requires fine motor control and understanding of granular transfer dynamics with non-uniform objects.</p>
+        <span class="mc-tag tag-purple">Seen: 60.61% · Unseen: 61.62%</span>
       </div>
       <div class="method-card mc-green reveal rv2">
         <div class="mc-icon ic-green"><i class="fas fa-layer-group"></i></div>
         <h3>Can Stacking</h3>
-        <p>Stack cans from both sides into the center with stable placement. Most dramatic improvement (+778%), requiring complex spatial reasoning far beyond the 4 seed demos.</p>
-        <span class="mc-tag tag-green">Success Rate: 65.90%</span>
+        <p>Stack cans from both sides into the center and ensure they are placed stably. The hardest task for the 4-seed baseline, requiring complex spatial reasoning far beyond the seed demos.</p>
+        <span class="mc-tag tag-green">Seen: 67.70% · Unseen: 69.19%</span>
       </div>
       <div class="method-card mc-blue reveal rv3">
         <div class="mc-icon ic-blue"><i class="fas fa-fire-burner"></i></div>
         <h3>Air Fryer Manipulation</h3>
-        <p>Open the air fryer drawer and place food items inside. Tests multi-step manipulation with articulated objects, requiring precise door-handle grasping and coordinated placement.</p>
-        <span class="mc-tag tag-blue">Success Rate: 72.82%</span>
+        <p>Grasp carrots from a plate, then open the air fryer and place the food inside. Tests multi-step manipulation with articulated objects, requiring precise door-handle grasping and coordinated placement.</p>
+        <span class="mc-tag tag-blue">Seen: 71.21% · Unseen: 55.05%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ ZERO-SHOT SIM2REAL ══ -->
+<section id="sim2real" class="s-white">
+  <div class="container-lg">
+    <div class="sec-label">09 — Zero-Shot Sim2Real</div>
+    <h2 class="sec-title">From Simulation to the Real World</h2>
+    <p class="sec-desc">Policies trained exclusively in simulation — with <strong style="color:var(--text)">no real-world data collection or fine-tuning</strong> — deployed zero-shot on a Pick-and-Place task, evaluated over 65 independent trials in an unseen real-world scene.</p>
+
+    <div class="metric-grid" style="margin-top:2rem;">
+      <div class="metric-card reveal">
+        <div class="metric-num mn-blue">7</div>
+        <div class="metric-desc">Parallel sim scenes for training data</div>
+        <div class="metric-sub">+ real scene for evaluation</div>
+      </div>
+      <div class="metric-card reveal rv1">
+        <div class="metric-num mn-purple">1,716</div>
+        <div class="metric-desc">Episodes generated (225,217 frames)</div>
+        <div class="metric-sub">vs. 4 episodes / 720 frames (SeedOnly)</div>
+      </div>
+      <div class="metric-card reveal rv2">
+        <div class="metric-num mn-amber">65</div>
+        <div class="metric-desc">Independent real-world trials</div>
+        <div class="metric-sub">Unseen real scene</div>
+      </div>
+      <div class="metric-card reveal rv3">
+        <div class="metric-num mn-green">0</div>
+        <div class="metric-desc">Real-world fine-tuning steps</div>
+        <div class="metric-sub">Pure zero-shot transfer</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2.2rem;" class="reveal">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Configuration</th><th>Episodes</th><th>Frames</th><th>Zero-Shot Real-World Success</th></tr></thead>
+          <tbody>
+            <tr><td class="td-name">SeedOnly</td><td>4</td><td>720</td><td class="td-bad">0.00%</td></tr>
+            <tr><td class="td-name">Seed2Scale*</td><td>142</td><td>19,748</td><td class="td-bad">0.00%</td></tr>
+            <tr><td class="td-name">Seed2Scale (3 scenes)</td><td>432</td><td>60,039</td><td>27.69%</td></tr>
+            <tr><td class="td-name">Seed2Scale (5 scenes)</td><td>720</td><td>100,065</td><td>73.85%</td></tr>
+            <tr class="td-avg"><td class="td-name">Seed2Scale (7 scenes)</td><td>1,716</td><td>225,217</td><td class="td-great">75.38%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.8rem;color:var(--text-dim);margin-top:.7rem;">
+        Success rate increases monotonically with scene diversity: from 0% in the single source world (SeedOnly and Seed2Scale*) to 27.69% with 3 scenes, 73.85% with 5 scenes, and 75.38% with 7 scenes — Parallel Worlds is the primary driver of zero-shot generalization to the real world.
+      </p>
+    </div>
+
+    <div class="fig-block reveal" style="margin-top:2.5rem;">
+      <img src="assets/extra_img/mutil_view.png"
+           alt="Parallel worlds for simulation experiments and zero-shot real-world experiments"
+           loading="lazy">
+      <div class="fig-caption">
+        <strong>Fig. — Parallel Worlds Overview.</strong>
+        (a) Simulation experiment: the original world, the 10 parallel worlds projected from it (some constructed with 3D Gaussian Splatting), and the 3 unseen worlds reserved for evaluation.
+        (b) Zero-shot real-world experiment: 7 parallel sim worlds and the real-world evaluation scene.
+      </div>
+    </div>
+
+    <div style="margin-top:3rem;">
+      <div class="sec-label" style="margin-bottom:.7rem;">Real-World Demonstrations</div>
+      <h3 class="sec-title" style="font-size:1.45rem;">Generalization to Unseen Scenes and Items</h3>
+      <p class="sec-desc">All demonstrations below are zero-shot: the policy is trained exclusively on simulation data generated by Seed2Scale (4 seed demos + parallel worlds) and deployed directly on the physical robot. Evaluation uses multiple target-item styles with evaluation areas aligned to the simulation data distribution, including configurations where multiple target items appear simultaneously at different locations.</p>
+
+      <div class="rw-cell reveal" style="max-width:760px;margin:1.8rem auto 0;">
+        <img src="assets/gif3/real_best_7scenes.gif"
+             alt="Best zero-shot real-world pick-and-place results with 7-scene parallel-world training"
+             loading="lazy">
+      </div>
+      <p style="font-size:.8rem;color:var(--text-dim);margin-top:.8rem;text-align:center;">
+        Best zero-shot results of parallel-world training with 7 scenes — dexterous pick-and-place directly on the physical robot.
+      </p>
+
+      <div class="rw-grid reveal">
+        <div class="rw-cell"><img src="assets/gif3/real_demo_1.gif" alt="Zero-shot real-world pick-and-place demo 1" loading="lazy"></div>
+        <div class="rw-cell"><img src="assets/gif3/real_demo_2.gif" alt="Zero-shot real-world pick-and-place demo 2" loading="lazy"></div>
+        <div class="rw-cell"><img src="assets/gif3/real_demo_3.gif" alt="Zero-shot real-world pick-and-place demo 3" loading="lazy"></div>
+        <div class="rw-cell"><img src="assets/gif3/real_demo_4.gif" alt="Zero-shot real-world pick-and-place demo 4" loading="lazy"></div>
+        <div class="rw-cell"><img src="assets/gif3/real_demo_5.gif" alt="Zero-shot real-world pick-and-place demo 5" loading="lazy"></div>
+        <div class="rw-cell"><img src="assets/gif3/real_demo_6.gif" alt="Zero-shot real-world pick-and-place demo 6" loading="lazy"></div>
+        <div class="rw-cell"><img src="assets/gif3/real_demo_7.gif" alt="Zero-shot real-world pick-and-place demo 7" loading="lazy"></div>
+        <div class="rw-cell"><img src="assets/gif3/real_demo_8.gif" alt="Zero-shot real-world pick-and-place demo 8" loading="lazy"></div>
+        <div class="rw-cell"><img src="assets/gif3/real_demo_9.gif" alt="Zero-shot real-world pick-and-place demo 9" loading="lazy"></div>
+      </div>
+
+      <div class="fig-caption" style="text-align:center;border:none;">
+        Zero-shot rollouts on the physical robot across diverse unseen target items (varied can and bottle styles) and spatial configurations — including multiple target items placed at different locations — demonstrating real-world generalization far beyond the source world, without any real-world fine-tuning.
       </div>
     </div>
   </div>
@@ -1423,14 +1534,14 @@
 <!-- ══ PAPER ══ -->
 <section id="paper" class="s-white">
   <div class="container">
-    <div class="sec-label">09 — Paper</div>
+    <div class="sec-label">10 — Paper</div>
     <h2 class="sec-title">Full Paper</h2>
-    <p class="sec-desc">Submitted to IROS 2026 (Manuscript 2162). Complete methodology, experimental setup, ablation studies, and theoretical analysis.</p>
+    <p class="sec-desc">Submitted to ICRA 2027. Complete methodology, experimental setup, ablation studies, and analysis.</p>
     <div class="pdf-wrap reveal">
-      <iframe src="assets/seed2scale_v2.pdf#toolbar=0&view=FitH" title="Seed2Scale IROS 2026 paper" loading="lazy"></iframe>
+      <iframe src="assets/seed2scale_icra27.pdf#toolbar=0&view=FitH" title="Seed2Scale ICRA 2027 paper" loading="lazy"></iframe>
     </div>
     <div style="text-align:center;margin-top:1.3rem;">
-      <a href="assets/seed2scale_v2.pdf" target="_blank" class="btn btn-outline">
+      <a href="assets/seed2scale_icra27.pdf" target="_blank" class="btn btn-outline">
         <i class="fas fa-external-link-alt"></i>&nbsp;Open in New Tab
       </a>
     </div>
@@ -1442,9 +1553,9 @@
 <!-- ══ SPECIAL THANKS ══ -->
 <section id="thanks" class="s-gray">
   <div class="container">
-    <div class="sec-label">10 — Acknowledgements</div>
+    <div class="sec-label">11 — Acknowledgements</div>
     <h2 class="sec-title">Special Thanks</h2>
-    <p class="sec-desc">AGIBot A2 for seed2scale.</p>
+    <p class="sec-desc">Agibot A2 robot platform for large-scale experimental validation of Seed2Scale.</p>
 
     <div class="thanks-wrap reveal">
       <div class="thanks-banner">
@@ -1466,7 +1577,7 @@
 <!-- ══ BIBTEX ══ -->
 <section id="bibtex" class="s-white">
   <div class="container">
-    <div class="sec-label">11 — Citation</div>
+    <div class="sec-label">12 — Citation</div>
     <h2 class="sec-title">BibTeX</h2>
     <p class="sec-desc">If you find Seed2Scale useful in your research, please consider citing our work.</p>
 
@@ -1485,8 +1596,8 @@
         </button>
       </div>
   <pre class="bib-code" id="bib-code"><span class="bk">@article</span>{<span class="bf">tai2026seed2scale</span>,
-  <span class="bk">title</span>   = {<span class="bv">Seed2Scale: A Self-Evolving Data Engine for Embodied AI via Small to Large Model Synergy and Multimodal Evaluation</span>},
-  <span class="bk">author</span>  = {<span class="bv">Tai, Cong and Zheng, Zhaoyu and Long, Haixu and Wu, Hansheng and Long, Zhengbin and Xiang, Haodong and Shi, Rong and Cui, Zhuo and Zhang, Shizhuang and Qiu, Gang and Wang, He and Li, Ruifeng and Liu, Biao and Sun, Zhenzhe and Shen, Tao</span>},
+  <span class="bk">title</span>   = {<span class="bv">Seed2Scale: A Self-Evolving Data Engine with Parallel Worlds Expansion for Scalable Robot Learning</span>},
+  <span class="bk">author</span>  = {<span class="bv">Tai, Cong and Zheng, Zhaoyu and Long, Haixu and Wu, Hansheng and Wang, Jialiang and Long, Zhengbin and Xiang, Haodong and Wang, Shuyuan and Shi, Rong and Cui, Zhuo and Zhang, Shizhuang and Wang, He and Liu, Biao and Sun, Zhenzhe and Shen, Tao</span>},
   <span class="bk">journal</span> = {<span class="bv">arXiv preprint arXiv:2603.08260</span>},
   <span class="bk">year</span>    = {<span class="bv">2026</span>}
 }</pre>
@@ -1501,8 +1612,7 @@
   <div class="footer-inner">
     <div class="footer-brand">SEED2SCALE</div>
     <p>
-      Submitted to IROS 2026 — IEEE/RSJ International Conference on Intelligent Robots and Systems.<br>
-      CONFIDENTIAL. Limited circulation. For review only.
+      Submitted to ICRA 2027 — IEEE International Conference on Robotics and Automation.
     </p>
     <p style="margin-top:.6rem;">
       Built with reference to <a href="https://nerfies.github.io" target="_blank" rel="noopener">Nerfies</a>
@@ -1533,16 +1643,17 @@ addEventListener('scroll', () => {
 /* ─── COUNTER ANIMATION ─── */
 (function () {
   function run(el) {
-    const target = parseFloat(el.dataset.target);
+    const raw = el.dataset.target;
+    const target = parseFloat(raw);
     const suffix = el.dataset.suffix || '';
     const dur = 1800, step = 14, steps = dur / step;
     let cur = 0;
     const inc = target / steps;
-    const isFloat = String(target).includes('.');
+    const dec = (raw.split('.')[1] || '').length;
     const t = setInterval(() => {
       cur += inc;
       if (cur >= target) { cur = target; clearInterval(t); }
-      el.textContent = (isFloat ? cur.toFixed(1) : Math.floor(cur)) + suffix;
+      el.textContent = cur.toFixed(dec) + suffix;
     }, step);
   }
   const io = new IntersectionObserver(entries => {
@@ -1571,8 +1682,8 @@ addEventListener('scroll', () => {
 /* ─── BIBTEX COPY ─── */
   function copyBib() {
   const text = `@article{tai2026seed2scale,
-  title   = {Seed2Scale: A Self-Evolving Data Engine for Embodied AI via Small to Large Model Synergy and Multimodal Evaluation},
-  author  = {Tai, Cong and Zheng, Zhaoyu and Long, Haixu and Wu, Hansheng and Long, Zhengbin and Xiang, Haodong and Shi, Rong and Cui, Zhuo and Zhang, Shizhuang and Qiu, Gang and Wang, He and Li, Ruifeng and Liu, Biao and Sun, Zhenzhe and Shen, Tao},
+  title   = {Seed2Scale: A Self-Evolving Data Engine with Parallel Worlds Expansion for Scalable Robot Learning},
+  author  = {Tai, Cong and Zheng, Zhaoyu and Long, Haixu and Wu, Hansheng and Wang, Jialiang and Long, Zhengbin and Xiang, Haodong and Wang, Shuyuan and Shi, Rong and Cui, Zhuo and Zhang, Shizhuang and Wang, He and Liu, Biao and Sun, Zhenzhe and Shen, Tao},
   journal = {arXiv preprint arXiv:2603.08260},
   year    = {2026}
 }`;
